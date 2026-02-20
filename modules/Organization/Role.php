@@ -1,6 +1,6 @@
 <?php
 
-namespace Domains\Organization\Enums;
+namespace Modules\Organization;
 
 enum Role: string
 {

@@ -1,18 +1,17 @@
 <?php
 
-namespace Domains\Project\Models;
+namespace Modules\Comment;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Project extends Model
+class Comment extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'organization_id',
-        'name',
-        'description',
-        'archived_at',
+        'task_id',
+        'user_id',
+        'body',
     ];
 }

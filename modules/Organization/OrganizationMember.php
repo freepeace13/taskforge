@@ -1,20 +1,18 @@
 <?php
 
-namespace Domains\Organization\Models;
+namespace Modules\Organization;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class OrganizationInvite extends Model
+class OrganizationMember extends Model
 {
+    protected $table = 'organization_user';
+
     protected $fillable = [
         'organization_id',
-        'invited_by_user_id',
-        'email',
-        'role',
-        'token',
-        'expires_at',
-        'accepted_at'
+        'user_id',
+        'role'
     ];
 
     public function organization(): BelongsTo

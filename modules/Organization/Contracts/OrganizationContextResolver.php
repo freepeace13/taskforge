@@ -1,8 +1,8 @@
 <?php
 
-namespace Domains\Organization\Contracts;
+namespace Modules\Organization\Contracts;
 
-use Domains\Organization\DTOs\TenantContext;
+use Modules\Organization\DTOs\TenantContext;
 
 interface OrganizationContextResolver
 {

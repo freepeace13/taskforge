@@ -1,9 +1,9 @@
 <?php
 
-namespace Domains\Organization\Actions;
+namespace Modules\Organization\Actions;
 
-use Domains\Organization\Models\Organization;
-use Domains\Organization\Models\OrganizationMember;
+use Modules\Organization\Organization;
+use Modules\Organization\OrganizationMember;
 
 class CreateOrganizationAction
 {

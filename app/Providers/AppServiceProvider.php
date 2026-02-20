@@ -2,9 +2,7 @@
 
 namespace App\Providers;
 
-use Domains\Organization\Contracts\OrganizationContextResolver;
 use Illuminate\Support\ServiceProvider;
-use Infrastructure\Organization\EloquentOrganizationContextResolver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,7 +11,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(OrganizationContextResolver::class, EloquentOrganizationContextResolver::class);
+        //
     }
 
     /**

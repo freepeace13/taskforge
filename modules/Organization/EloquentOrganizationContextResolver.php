@@ -1,11 +1,9 @@
 <?php
 
-namespace Infrastructure\Organization;
+namespace Modules\Organization;
 
-use Domains\Organization\Contracts\OrganizationContextResolver;
-use Domains\Organization\DTOs\TenantContext;
-use Domains\Organization\Models\Organization;
-use Domains\Organization\Models\OrganizationMember;
+use Modules\Organization\Contracts\OrganizationContextResolver;
+use Modules\Organization\DTOs\TenantContext;
 use Illuminate\Auth\Access\AuthorizationException;
 
 class EloquentOrganizationContextResolver implements OrganizationContextResolver

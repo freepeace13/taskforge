@@ -1,8 +1,8 @@
 <?php
 
-namespace Domains\Organization\DTOs;
+namespace Modules\Organization\DTOs;
 
-use Domains\Organization\Enums\Role;
+use Modules\Organization\Role;
 
 final class TenantContext
 {
