@@ -1,0 +1,10 @@
+<?php
+
+namespace Domains\Organization\Enums;
+
+enum Role: string
+{
+    case Owner = 'owner';
+    case Admin = 'admin';
+    case Member = 'member';
+}
