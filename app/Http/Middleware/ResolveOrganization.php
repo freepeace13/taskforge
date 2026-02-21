@@ -2,19 +2,14 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Organization;
+use App\Models\OrganizationMember;
 use Closure;
-use Domains\Organization\Contracts\OrganizationContextResolver;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResolveOrganization
 {
-    public function __construct(
-        private readonly OrganizationContextResolver $resolver
-    ) {}
-
     /**
      * Handle an incoming request.
      *
@@ -25,17 +20,22 @@ class ResolveOrganization
         $orgSlug = (string) $request->route('org');
         $userId  = (int) $request->user()->id;
 
-        try {
-            $ctx = $this->resolver->resolveForUser($orgSlug, $userId);
-        } catch (ModelNotFoundException) {
-            abort(404, 'Organization not found.');
-        } catch (AuthorizationException $e) {
-            abort(403, $e->getMessage());
-        }
+        $org = Organization::query()
+            ->where('slug', $orgSlug)
+            ->firstOrFail();
 
-        // Store full context (org + role) for downstream usage
-        $request->attributes->set('tenant', $ctx);
-        app()->instance('tenant', $ctx);
+        $userId = (int) $request->user()->id;
+
+        $isMember = OrganizationMember::query()
+            ->where('organization_id', $org->id)
+            ->where('user_id', $userId)
+            ->exists();
+
+        abort_unless($isMember, 403, 'You are not a member of this organization.');
+
+        // Store current org in request attributes + container for easy access
+        $request->attributes->set('tenant', $org);
+        app()->instance('tenant', $org);
 
         return $next($request);
     }

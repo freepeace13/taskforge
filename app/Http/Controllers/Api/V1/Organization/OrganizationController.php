@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1\Organization;
 
 use App\Http\Controllers\Controller;
-use Domains\Organization\Actions\CreateOrganizationAction;
-use Domains\Organization\Models\Organization;
+use App\Actions\Organization\CreateOrganizationAction;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
@@ -36,13 +36,25 @@ class OrganizationController extends Controller
 
     public function show(Request $request, Organization $organization)
     {
+        $user = $request->user();
+
         // Quick membership check (we’ll replace with Policy soon)
         $isMember = $organization->members()
-            ->where('users.id', $request->user()->id)
+            ->where('users.id', $user->id)
             ->exists();
 
         abort_unless($isMember, 403);
 
         return response()->json($organization->load(['owner']));
+    }
+
+    public function update(Request $request)
+    {
+        //
+    }
+
+    public function destroy(Organization $org)
+    {
+        //
     }
 }
