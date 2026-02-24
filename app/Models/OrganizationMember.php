@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Enums\Role;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class OrganizationMember extends Model
+class OrganizationMember extends Pivot
 {
     protected $table = 'organization_user';
 
@@ -14,6 +15,18 @@ class OrganizationMember extends Model
         'user_id',
         'role'
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'role' => Role::class,
+        ];
+    }
 
     public function user(): BelongsTo
     {

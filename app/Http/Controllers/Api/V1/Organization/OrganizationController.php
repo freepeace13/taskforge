@@ -4,34 +4,41 @@ namespace App\Http\Controllers\Api\V1\Organization;
 
 use App\Http\Controllers\Controller;
 use App\Actions\Organization\CreateOrganizationAction;
+use App\Http\Resources\OrganizationResource;
 use App\Models\Organization;
+use App\Queries\Organization\ListOrganizationsQuery;
+use App\Queries\Organization\ListOrganizationsQueryHandler;
 use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
+        $handler = app(ListOrganizationsQueryHandler::class);
 
-        $orgs = Organization::query()
-            ->whereHas('members', fn ($q) => $q->where('users.id', $user->id))
-            ->latest()
-            ->paginate(10);
+        $cursorPaginator = $handler->handle(new ListOrganizationsQuery(
+            userId: $request->user()->id,
+            search: $request->q ?? '',
+            perPage: 10
+        ));
 
-        return response()->json($orgs);
+        return OrganizationResource::collection($cursorPaginator);
     }
 
-    public function store(Request $request, CreateOrganizationAction $create)
+    public function store(Request $request)
     {
-        $data = $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
         ]);
 
-        $user = $request->user();
+        $creator = app(CreateOrganizationAction::class);
 
-        $org = $create->execute($user->id, $data['name']);
+        $organization = $creator->create(
+            ownerId: $request->user()->id,
+            name: $validated['name']
+        );
 
-        return response()->json($org, 201);
+        return new OrganizationResource($organization);
     }
 
     public function show(Request $request, Organization $organization)

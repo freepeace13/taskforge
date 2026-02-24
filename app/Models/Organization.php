@@ -9,7 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Organization extends Model
 {
-    protected $fillable = ['name', 'owner_id'];
+    protected $fillable = [
+        'name',
+        'slug',
+        'owner_id'
+    ];
 
     public function owner(): BelongsTo
     {
@@ -23,6 +27,8 @@ class Organization extends Model
 
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->using(OrganizationMember::class);
+        return $this->belongsToMany(User::class)
+            ->using(OrganizationMember::class)
+            ->withPivot('role');
     }
 }
