@@ -7,12 +7,17 @@ use Illuminate\Pagination\CursorPaginator;
 
 class ListOrganizationsQueryHandler
 {
-    public function handle(ListOrganizationsQuery $query): CursorPaginator
+    public function handle(ListOrganizationsQuery $query)
     {
         $user = User::findOrFail($query->userId);
 
-        return $user->organizations()
-            ->when(filled($query->search), fn ($q) => $q->where('organizations.name', 'LIKE', '%'.$query->search.'%'))
-            ->cursorPaginate($query->perPage);
+        $builder = $user->organizations()
+            ->when(filled($query->search), fn ($q) => $q->where('organizations.name', 'LIKE', '%'.$query->search.'%'));
+
+        if ($query->shouldPaginate()) {
+            return $builder->cursorPaginate($query->perPage);
+        }
+
+        return $builder->get();
     }
 }

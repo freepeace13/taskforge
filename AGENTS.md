@@ -20,6 +20,13 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/sail (SAIL) - v1
 - phpunit/phpunit (PHPUNIT) - v11
 
+## Skills Activation
+
+This project has domain-specific skills available. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
+
+- `query-handler-pattern` — Structured read-side pattern using Query Objects and Query Handlers for complex data retrieval with optional pagination support.
+- `transactional-action-pattern` — A disciplined architecture pattern that isolates state mutations into testable, transaction-safe Action classes with SOLID compliance and strict separation of concerns.
+
 ## Conventions
 
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.

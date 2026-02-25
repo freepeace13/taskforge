@@ -2,41 +2,51 @@
 
 namespace App\Http\Controllers\Api\V1\Organization;
 
+use App\Actions\Organization\RemoveMemberAction;
+use App\Actions\Organization\UpdateMemberRoleAction;
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Organization\UpdateOrganizationMemberRoleRequest;
 use App\Http\Resources\UserResource;
-use App\Models\Organization;
+use App\Models\User;
 use App\Queries\Organization\ListMembersQuery;
 use App\Queries\Organization\ListMembersQueryHandler;
-use Illuminate\Http\Request;
 
 class MemberController extends Controller
 {
-    public function index(Request $request, Organization $org)
+    public function index(ListMembersQueryHandler $handler)
     {
-        $handler = app(ListMembersQueryHandler::class);
-
         $cursorPaginator = $handler->handle(new ListMembersQuery(
-            organizationId: $org->id,
-            search: $request->q ?? '',
-            roles: explode(',', $request->role ?? ''),
-            perPage: 10
+            organizationId: tenant()->organizationId,
+            search: request()->filled('q') ? request()->string('q')->toString() : null,
+            roles: request()->filled('roles') ? request()->string('roles')->toString() : null,
         ));
 
         return UserResource::collection($cursorPaginator);
     }
 
-    public function store(Request $request, Organization $org)
+    public function update(UpdateOrganizationMemberRoleRequest $request, User $user, UpdateMemberRoleAction $action)
     {
-        //
+        $action->update(
+            organizationId: tenant()->organizationId,
+            actorRole: tenant()->role,
+            member: $user,
+            role: Role::from($request->string('role')->toString()),
+        );
+
+        return response()->json([
+            'message' => 'Member role updated.',
+        ]);
     }
 
-    public function update(Request $request, Organization $org)
+    public function destroy(User $user, RemoveMemberAction $action)
     {
-        //
-    }
+        $action->remove(
+            organizationId: tenant()->organizationId,
+            actorRole: tenant()->role,
+            member: $user,
+        );
 
-    public function destroy(Organization $org)
-    {
-        //
+        return response()->noContent();
     }
 }

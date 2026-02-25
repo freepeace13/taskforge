@@ -7,9 +7,9 @@ use App\Models\OrganizationMember;
 use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
 
-class RemoveMemberAction
+class UpdateMemberRoleAction
 {
-    public function remove(int $organizationId, Role $actorRole, User $member): void
+    public function update(int $organizationId, Role $actorRole, User $member, Role $role): OrganizationMember
     {
         abort_unless(in_array($actorRole, [Role::Owner, Role::Admin], true), Response::HTTP_FORBIDDEN);
 
@@ -18,8 +18,12 @@ class RemoveMemberAction
             ->where('user_id', $member->id)
             ->firstOrFail();
 
-        abort_if($organizationMember->role === Role::Owner, Response::HTTP_UNPROCESSABLE_ENTITY, 'Owner cannot be removed.');
+        abort_if($organizationMember->role === Role::Owner, Response::HTTP_UNPROCESSABLE_ENTITY, 'Owner role cannot be changed.');
 
-        $organizationMember->delete();
+        $organizationMember->update([
+            'role' => $role->value,
+        ]);
+
+        return $organizationMember->refresh();
     }
 }

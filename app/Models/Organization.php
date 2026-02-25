@@ -15,6 +15,14 @@ class Organization extends Model
         'owner_id'
     ];
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class);

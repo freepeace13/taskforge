@@ -1,10 +1,15 @@
 {
     "agents": [
-        "cursor"
+        "cursor",
+        "codex"
     ],
     "guidelines": true,
     "herd_mcp": false,
     "mcp": true,
     "nightwatch_mcp": false,
-    "sail": true
+    "sail": true,
+    "skills": [
+        "query-handler-pattern",
+        "transactional-action-pattern"
+    ]
 }

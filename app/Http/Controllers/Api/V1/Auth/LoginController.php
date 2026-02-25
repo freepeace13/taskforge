@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -18,14 +18,23 @@ class LoginController extends Controller
 
         $user = User::query()->where('email', $data['email'])->first();
 
-        if (! $user || ! Hash::check($data['password'], $user->password)) {
+        if (!$user) {
             return response()->json([
                 'message' => 'Invalid credentials.',
             ], 422);
         }
 
-        // Optional: revoke old tokens to keep it clean
-        // $user->tokens()->delete();
+        if (is_null($user->password)) {
+            return response()->json([
+                'message' => 'Set your password first.',
+            ], 422);
+        }
+
+        if (!Hash::check($data['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Invalid credentials.',
+            ], 422);
+        }
 
         $token = $user->createToken('api')->plainTextToken;
 

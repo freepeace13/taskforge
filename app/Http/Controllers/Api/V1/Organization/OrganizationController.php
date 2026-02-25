@@ -18,8 +18,7 @@ class OrganizationController extends Controller
 
         $cursorPaginator = $handler->handle(new ListOrganizationsQuery(
             userId: $request->user()->id,
-            search: $request->q ?? '',
-            perPage: 10
+            search: $request->string('q', ''),
         ));
 
         return OrganizationResource::collection($cursorPaginator);

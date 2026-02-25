@@ -3,7 +3,7 @@
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\CurrentUserController;
-use App\Http\Controllers\Api\V1\Organization\InviteController;
+use App\Http\Controllers\Api\V1\Organization\InvitationController;
 use App\Http\Controllers\Api\V1\Organization\MemberController;
 use App\Http\Controllers\Api\V1\Organization\OrganizationController;
 use App\Http\Controllers\Api\V1\Project\ArchiveController;
@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\V1\Task\AssigneeController;
 use App\Http\Controllers\Api\V1\Comment\CommentController;
 use App\Http\Controllers\Api\V1\Task\StateController;
 use App\Http\Controllers\Api\V1\Task\TaskController;
-use App\Http\Controllers\V1\ActivityLogController;
+use App\Http\Controllers\Api\V1\ActivityLogController;
 use App\Http\Middleware\ResolveOrganization;
 use Illuminate\Support\Facades\Route;
 
@@ -43,14 +43,13 @@ Route::group([
             Route::get('tasks/{task}/activity', [ActivityLogController::class, 'tasks']);
 
             Route::get('members', [MemberController::class, 'index']);
-            Route::post('members', [MemberController::class, 'store']);
+            // Route::post('members', [MemberController::class, 'store']);
             Route::patch('members/{user}', [MemberController::class, 'update']);
             Route::delete('members/{user}', [MemberController::class, 'destroy']);
 
-            Route::get('invites', [InviteController::class, 'index']);
-            Route::post('invites', [InviteController::class, 'store']);
-            Route::post('invites/{invite}/accept', [InviteController::class, 'accept']);
-            Route::delete('invites/{invite}', [InviteController::class, 'destroy']);
+            Route::get('invitations', [InvitationController::class, 'index']);
+            Route::post('invitations', [InvitationController::class, 'store']);
+            Route::delete('invitations/{invite}', [InvitationController::class, 'destroy']);
 
             Route::get('projects', [ProjectController::class, 'index']);
             Route::post('projects', [ProjectController::class, 'store']);
