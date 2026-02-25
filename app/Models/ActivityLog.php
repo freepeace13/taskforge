@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ActivityLog extends Model
 {
@@ -13,6 +12,6 @@ class ActivityLog extends Model
         'project_id',
         'task_id',
         'event',
-        'meta'
+        'meta',
     ];
 }

@@ -18,8 +18,7 @@ class InvitationController extends Controller
         ResolveInvitableUserAction $resolveInvitableUserAction,
         AuthenticateInvitedUserAction $authenticateInvitedUserAction,
         AcceptInvitationAction $acceptInvitationAction
-    )
-    {
+    ) {
         abort_unless($request->hasValidSignature(), Response::HTTP_FORBIDDEN);
 
         $invite = OrganizationInvite::query()

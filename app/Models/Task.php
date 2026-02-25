@@ -18,7 +18,7 @@ class Task extends Model
         'status', // todo / in_progress / done
         'priority', // low / medium / high
         'due_date',
-        'completed_at'
+        'completed_at',
     ];
 
     public function project(): BelongsTo

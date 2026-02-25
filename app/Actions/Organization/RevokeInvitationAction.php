@@ -12,7 +12,7 @@ class RevokeInvitationAction
     {
         abort_unless(in_array($actorRole, [Role::Owner, Role::Admin], true), Response::HTTP_FORBIDDEN);
         abort_if($invite->organization_id !== $organizationId, Response::HTTP_NOT_FOUND);
-        abort_if(!is_null($invite->accepted_at), Response::HTTP_UNPROCESSABLE_ENTITY, 'Accepted invitations cannot be revoked.');
+        abort_if(! is_null($invite->accepted_at), Response::HTTP_UNPROCESSABLE_ENTITY, 'Accepted invitations cannot be revoked.');
 
         $invite->delete();
     }

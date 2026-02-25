@@ -18,7 +18,7 @@ class LoginController extends Controller
 
         $user = User::query()->where('email', $data['email'])->first();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'message' => 'Invalid credentials.',
             ], 422);
@@ -30,7 +30,7 @@ class LoginController extends Controller
             ], 422);
         }
 
-        if (!Hash::check($data['password'], $user->password)) {
+        if (! Hash::check($data['password'], $user->password)) {
             return response()->json([
                 'message' => 'Invalid credentials.',
             ], 422);

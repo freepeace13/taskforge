@@ -12,7 +12,7 @@ class Organization extends Model
     protected $fillable = [
         'name',
         'slug',
-        'owner_id'
+        'owner_id',
     ];
 
     /**

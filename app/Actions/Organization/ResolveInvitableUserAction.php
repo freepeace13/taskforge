@@ -13,7 +13,7 @@ class ResolveInvitableUserAction
             ->where('email', $email)
             ->first();
 
-        if (!is_null($user)) {
+        if (! is_null($user)) {
             return $user;
         }
 

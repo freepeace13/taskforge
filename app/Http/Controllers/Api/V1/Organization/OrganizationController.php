@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1\Organization;
 
-use App\Http\Controllers\Controller;
 use App\Actions\Organization\CreateOrganizationAction;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\OrganizationResource;
 use App\Models\Organization;
 use App\Queries\Organization\ListOrganizationsQuery;

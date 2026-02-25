@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\V1\ActivityLogController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\Comment\CommentController;
 use App\Http\Controllers\Api\V1\CurrentUserController;
 use App\Http\Controllers\Api\V1\Organization\InvitationController;
 use App\Http\Controllers\Api\V1\Organization\MemberController;
@@ -9,16 +11,14 @@ use App\Http\Controllers\Api\V1\Organization\OrganizationController;
 use App\Http\Controllers\Api\V1\Project\ArchiveController;
 use App\Http\Controllers\Api\V1\Project\ProjectController;
 use App\Http\Controllers\Api\V1\Task\AssigneeController;
-use App\Http\Controllers\Api\V1\Comment\CommentController;
 use App\Http\Controllers\Api\V1\Task\StateController;
 use App\Http\Controllers\Api\V1\Task\TaskController;
-use App\Http\Controllers\Api\V1\ActivityLogController;
 use App\Http\Middleware\ResolveOrganization;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
     'prefix' => 'v1',
-    'middleware' => []
+    'middleware' => [],
 ], function () {
     Route::post('register', RegisterController::class);
     Route::post('login', LoginController::class);
@@ -36,7 +36,7 @@ Route::group([
 
         Route::group([
             'prefix' => 'orgs/{org}',
-            'middleware' => [ResolveOrganization::class]
+            'middleware' => [ResolveOrganization::class],
         ], function () {
             Route::get('activity', [ActivityLogController::class, 'index']);
             Route::get('projects/{project}/activity', [ActivityLogController::class, 'projects']);
@@ -62,7 +62,7 @@ Route::group([
             Route::post('projects/{project}/restore', [ArchiveController::class, 'restore']);
 
             Route::group([
-                'prefix' => 'projects/{project}'
+                'prefix' => 'projects/{project}',
             ], function () {
                 Route::get('tasks', [TaskController::class, 'index']);
                 Route::post('tasks', [TaskController::class, 'store']);
@@ -71,7 +71,7 @@ Route::group([
                 Route::delete('tasks/{task}', [TaskController::class, 'destroy']);
 
                 Route::group([
-                    'prefix' => 'tasks/{task}'
+                    'prefix' => 'tasks/{task}',
                 ], function () {
                     Route::post('complete', [StateController::class, 'complete']);
                     Route::post('reopen', [StateController::class, 'reopen']);

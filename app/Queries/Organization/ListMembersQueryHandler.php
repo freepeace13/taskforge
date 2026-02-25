@@ -1,11 +1,9 @@
 <?php
 
-
 namespace App\Queries\Organization;
 
 use App\Enums\Role;
 use App\Models\Organization;
-use Illuminate\Pagination\CursorPaginator;
 
 class ListMembersQueryHandler
 {

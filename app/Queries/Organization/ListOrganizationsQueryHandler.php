@@ -3,7 +3,6 @@
 namespace App\Queries\Organization;
 
 use App\Models\User;
-use Illuminate\Pagination\CursorPaginator;
 
 class ListOrganizationsQueryHandler
 {

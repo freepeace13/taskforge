@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use App\Data\TenantContext;
-use App\Models\Organization;
 use App\Models\OrganizationMember;
 use Closure;
 use Illuminate\Http\Request;

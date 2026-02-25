@@ -13,7 +13,7 @@ class CreateOrganizationAction
         $org = Organization::create([
             'name' => $name,
             'slug' => Str::slug($name),
-            'owner_id' => $ownerId
+            'owner_id' => $ownerId,
         ]);
 
         $org->members()->attach($ownerId, ['role' => Role::Owner]);

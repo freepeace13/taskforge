@@ -13,7 +13,7 @@ class OrganizationMember extends Pivot
     protected $fillable = [
         'organization_id',
         'user_id',
-        'role'
+        'role',
     ];
 
     /**

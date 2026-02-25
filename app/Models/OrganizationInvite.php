@@ -15,7 +15,7 @@ class OrganizationInvite extends Model
         'role',
         'token',
         'expires_at',
-        'accepted_at'
+        'accepted_at',
     ];
 
     /**

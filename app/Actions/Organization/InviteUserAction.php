@@ -4,7 +4,6 @@ namespace App\Actions\Organization;
 
 use App\Enums\Role;
 use App\Models\Organization;
-use App\Models\OrganizationInvite;
 use App\Models\User;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;

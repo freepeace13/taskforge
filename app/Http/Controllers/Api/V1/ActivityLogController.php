@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Organization;
 use App\Models\Project;
 use App\Models\Task;
+use Illuminate\Http\Request;
 
 class ActivityLogController extends Controller
 {

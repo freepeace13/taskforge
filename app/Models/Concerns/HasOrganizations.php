@@ -34,7 +34,7 @@ trait HasOrganizations
 
     public function organizationRole($org): ?Role
     {
-        if (!$this->belongsToOrganization($org)) {
+        if (! $this->belongsToOrganization($org)) {
             return null;
         }
 

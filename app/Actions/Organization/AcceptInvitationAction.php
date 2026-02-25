@@ -16,7 +16,7 @@ class AcceptInvitationAction
         $this->ensureNotYetMember($user, $invite);
 
         $invite->organization->members()->attach($user->id, [
-            'role' => $invite->role
+            'role' => $invite->role,
         ]);
 
         $invite->update(['accepted_at' => now()]);
@@ -41,13 +41,13 @@ class AcceptInvitationAction
 
     protected function ensureIsPending($invite)
     {
-        $accepted = !is_null($invite->accepted_at);
+        $accepted = ! is_null($invite->accepted_at);
         abort_if($accepted, Response::HTTP_UNPROCESSABLE_ENTITY, __('This invitation has already been accepted.'));
     }
 
     protected function ensureNotExpire($invite)
     {
-        $expired = !is_null($invite->expires_at) && $invite->expires_at->isPast();
+        $expired = ! is_null($invite->expires_at) && $invite->expires_at->isPast();
         abort_if($expired, Response::HTTP_UNPROCESSABLE_ENTITY, 'This invitation has expired.');
     }
 }
