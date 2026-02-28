@@ -6,16 +6,15 @@ use App\Contracts\Actions\Task\UpdatesTaskAction as UpdatesTaskContract;
 use App\Data\TaskData;
 use App\Models\Task;
 use App\Models\User;
+use App\Support\AuthorizesActions;
 
 class UpdateTaskAction implements UpdatesTaskContract
 {
+    use AuthorizesActions;
+
     public function update(User $actor, Task $task, TaskData $data): Task
     {
-        $project = $task->project;
-
-        if (!$actor->belongsToOrganization($project->organization)) {
-            throw new \Exception('You are not belong to this organization.');
-        }
+        $this->authorizeForUser($actor, 'update', $task);
 
         $task->update([
             'title' => $data->title,

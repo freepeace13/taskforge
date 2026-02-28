@@ -7,14 +7,15 @@ use App\Data\TaskData;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
+use App\Support\AuthorizesActions;
 
 class CreateTaskAction implements CreatesTaskContract
 {
+    use AuthorizesActions;
+
     public function create(User $actor, Project $project, TaskData $data): Task
     {
-        if (!$actor->belongsToOrganization($project->organization)) {
-            throw new \Exception('You are not belong to this organization.');
-        }
+        $this->authorizeForUser($actor, 'create', [Task::class, $project]);
 
         $task = $project->tasks()->create([
             'title' => $data->title,
