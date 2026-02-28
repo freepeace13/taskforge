@@ -7,9 +7,5 @@
     "herd_mcp": false,
     "mcp": true,
     "nightwatch_mcp": false,
-    "sail": true,
-    "skills": [
-        "query-handler-pattern",
-        "transactional-action-pattern"
-    ]
+    "sail": true
 }

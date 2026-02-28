@@ -2,22 +2,32 @@
 
 namespace App\Actions\Organization;
 
+use App\Contracts\Actions\Organization\CreatesOrganizationAction as CreatesOrganizationContract;
+use App\Data\OrganizationData;
 use App\Enums\Role;
 use App\Models\Organization;
+use App\Models\User;
+use App\Support\AuthorizesActions;
 use Illuminate\Support\Str;
 
-class CreateOrganizationAction
+class CreateOrganizationAction implements CreatesOrganizationContract
 {
-    public function create(int $ownerId, string $name): Organization
+    use AuthorizesActions;
+
+    public function create(User $actor, OrganizationData $data): Organization
     {
-        $org = Organization::create([
-            'name' => $name,
-            'slug' => Str::slug($name),
-            'owner_id' => $ownerId,
+        $this->authorizeForUser($actor, 'create', Organization::class);
+
+        $organization = Organization::create([
+            'name' => $data->name,
+            'slug' => Str::slug($data->name),
+            'owner_id' => $actor->id,
         ]);
 
-        $org->members()->attach($ownerId, ['role' => Role::Owner]);
+        $organization->members()->attach($actor, [
+            'role' => Role::Owner
+        ]);
 
-        return $org->refresh();
+        return $organization;
     }
 }

@@ -2,24 +2,23 @@
 
 namespace App\Actions\Organization;
 
-use App\Enums\Role;
-use App\Models\OrganizationMember;
+use App\Contracts\Actions\Organization\RemovesMemberAction as RemovesMemberContract;
+use App\Models\Organization;
 use App\Models\User;
-use Symfony\Component\HttpFoundation\Response;
+use App\Support\AuthorizesActions;
 
-class RemoveMemberAction
+class RemoveMemberAction implements RemovesMemberContract
 {
-    public function remove(int $organizationId, Role $actorRole, User $member): void
-    {
-        abort_unless(in_array($actorRole, [Role::Owner, Role::Admin], true), Response::HTTP_FORBIDDEN);
+    use AuthorizesActions;
 
-        $organizationMember = OrganizationMember::query()
-            ->where('organization_id', $organizationId)
-            ->where('user_id', $member->id)
+    public function remove(User $actor, Organization $organization, int $userId)
+    {
+        $member = $organization->members()
+            ->where('users.id', $userId)
             ->firstOrFail();
 
-        abort_if($organizationMember->role === Role::Owner, Response::HTTP_UNPROCESSABLE_ENTITY, 'Owner cannot be removed.');
+        $this->authorizeForUser($actor, 'remove', $member);
 
-        $organizationMember->delete();
+        $organization->members()->detach($userId);
     }
 }

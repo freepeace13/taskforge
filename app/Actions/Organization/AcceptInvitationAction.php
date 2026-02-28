@@ -2,52 +2,55 @@
 
 namespace App\Actions\Organization;
 
+use App\Contracts\Actions\Organization\AcceptsInvitationAction as AcceptsInvitationContract;
 use App\Models\OrganizationInvite;
 use App\Models\User;
-use Symfony\Component\HttpFoundation\Response;
+use App\Support\AuthorizesActions;
+use Illuminate\Support\Facades\DB;
 
-class AcceptInvitationAction
+class AcceptInvitationAction implements AcceptsInvitationContract
 {
-    public function accept(User $user, OrganizationInvite $invite): OrganizationInvite
+    use AuthorizesActions;
+
+    public function accept(User $actor, OrganizationInvite $invite)
     {
-        $this->ensureIsPending($invite);
-        $this->ensureNotExpire($invite);
-        $this->ensureUserEmailMatched($user, $invite);
-        $this->ensureNotYetMember($user, $invite);
+        $this->authorizeForUser($actor, 'accept', $invite);
 
-        $invite->organization->members()->attach($user->id, [
-            'role' => $invite->role,
-        ]);
+        $this->ensureInvitationValidity($invite);
+        $this->ensureNotYetMember($actor, $invite);
 
-        $invite->update(['accepted_at' => now()]);
+        $organization = $invite->organization;
 
-        return $invite->refresh();
+        DB::transaction(function () use ($actor, $organization, $invite) {
+            $organization->members()->attach($actor->id, [
+                'role' => $invite->role,
+            ]);
+
+            $invite->update(['accepted_at' => now()]);
+        });
     }
 
     protected function ensureNotYetMember($user, $invite)
     {
-        $isMember = $invite->organization->members()
+        $member = $invite->organization->members()
             ->where('users.id', $user->id)
-            ->exists();
+            ->first();
 
-        abort_if($isMember, Response::HTTP_UNPROCESSABLE_ENTITY, 'User is already a member of this organization.');
+        if ($member) {
+            if (is_null($invite->accepted_at)) {
+                $invite->update(['accepted_at' => $member->created_at]);
+            }
+
+            throw new \Exception('User is already a member of this organization.');
+        }
     }
 
-    protected function ensureUserEmailMatched($user, $invite)
-    {
-        $mismatch = $invite->email !== $user->email;
-        abort_if($mismatch, Response::HTTP_UNPROCESSABLE_ENTITY, 'Invitation email mismatch.');
-    }
-
-    protected function ensureIsPending($invite)
-    {
-        $accepted = ! is_null($invite->accepted_at);
-        abort_if($accepted, Response::HTTP_UNPROCESSABLE_ENTITY, __('This invitation has already been accepted.'));
-    }
-
-    protected function ensureNotExpire($invite)
+    protected function ensureInvitationValidity($invite)
     {
         $expired = ! is_null($invite->expires_at) && $invite->expires_at->isPast();
-        abort_if($expired, Response::HTTP_UNPROCESSABLE_ENTITY, 'This invitation has expired.');
+
+        if (! is_null($invite->accepted_at) || $expired) {
+            throw new \Exception('The invitation has already been accepted or expired.');
+        }
     }
 }

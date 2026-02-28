@@ -165,13 +165,8 @@ class InvitationAcceptGuestTest extends TestCase
 
     private function createOrganization(): Organization
     {
-        $owner = User::factory()->create();
-
-        $organization = Organization::query()->create([
-            'name' => 'Org '.Str::random(6),
-            'slug' => 'org-'.Str::random(8),
-            'owner_id' => $owner->id,
-        ]);
+        $organization = Organization::factory()->create();
+        $owner = User::query()->findOrFail($organization->owner_id);
 
         $organization->members()->attach($owner->id, ['role' => Role::Owner->value]);
 

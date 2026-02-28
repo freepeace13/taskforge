@@ -51,7 +51,9 @@ class OrganizationController extends Controller
 
         abort_unless($isMember, 403);
 
-        return response()->json($organization->load(['owner']));
+        $organization->load(['owner']);
+
+        return new OrganizationResource($organization);
     }
 
     public function update(Request $request)

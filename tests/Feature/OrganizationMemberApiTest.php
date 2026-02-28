@@ -82,13 +82,8 @@ class OrganizationMemberApiTest extends TestCase
 
     private function createOrganizationWithRole(Role $role): array
     {
-        $user = User::factory()->create();
-
-        $organization = Organization::query()->create([
-            'name' => 'Org '.Str::random(6),
-            'slug' => 'org-'.Str::random(8),
-            'owner_id' => $user->id,
-        ]);
+        $organization = Organization::factory()->create();
+        $user = User::query()->findOrFail($organization->owner_id);
 
         $organization->members()->attach($user->id, ['role' => $role->value]);
 

@@ -6,11 +6,12 @@ use App\Actions\Organization\InviteUserAction;
 use App\Actions\Organization\RevokeInvitationAction;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Organization\StoreOrganizationInvitationRequest;
+use App\Http\Requests\Organization\StoreInvitationRequest;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Queries\Organization\ListOrganizationInvitationsQuery;
 use App\Queries\Organization\ListOrganizationInvitationsQueryHandler;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class InvitationController extends Controller
@@ -27,16 +28,15 @@ class InvitationController extends Controller
         return response()->json($invites);
     }
 
-    public function store(StoreOrganizationInvitationRequest $request, InviteUserAction $inviteUserAction)
+    public function store(StoreInvitationRequest $request, InviteUserAction $inviteUserAction)
     {
-        $organization = Organization::query()->findOrFail(tenant()->organizationId);
+        $organization = Organization::findOrFail(tenant()->organizationId);
 
         $invitation = $inviteUserAction->invite(
+            actor: $request->user(),
             organization: $organization,
-            inviter: $request->user(),
-            actorRole: tenant()->role,
-            email: $request->string('email')->toString(),
-            role: Role::from($request->string('role')->toString()),
+            email: $request->string('email'),
+            role: Role::from($request->string('role')),
         );
 
         return response()->json([

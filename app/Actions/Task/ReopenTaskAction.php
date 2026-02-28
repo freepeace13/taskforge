@@ -2,13 +2,22 @@
 
 namespace App\Actions\Task;
 
-class ReopenTaskAction
+use App\Contracts\Actions\Task\ReopensTaskAction as ReopensTaskContract;
+use App\Models\Task;
+use App\Models\User;
+
+class ReopenTaskAction implements ReopensTaskContract
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
+    public function reopen(User $actor, Task $task): Task
     {
-        //
+        $project = $task->project;
+
+        if (!$actor->belongsToOrganization($project->organization)) {
+            throw new \Exception('You are not belong to this organization.');
+        }
+
+        $task->reopen()->save();
+
+        return $task;
     }
 }

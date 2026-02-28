@@ -2,13 +2,21 @@
 
 namespace App\Actions\Project;
 
-class RestoreProjectAction
+use App\Contracts\Actions\Project\RestoresProjectAction as RestoresProjectContract;
+use App\Models\Project;
+use App\Models\User;
+use App\Support\AuthorizesActions;
+
+class RestoreProjectAction implements RestoresProjectContract
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
+    use AuthorizesActions;
+
+    public function restore(User $actor, Project $project): Project
     {
-        //
+        $this->authorizeForUser($actor, 'restore', $project);
+
+        $project->restore()->save();
+
+        return $project;
     }
 }

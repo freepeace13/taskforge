@@ -42,4 +42,9 @@ trait HasOrganizations
 
         return $org->pivot->role;
     }
+
+    public function hasAnyOrganizationRole($org, ...$roles): bool
+    {
+        return in_array($this->organizationRole($org), [...$roles], true);
+    }
 }

@@ -2,59 +2,43 @@
 
 namespace App\Actions\Organization;
 
-use App\Enums\Role;
+use App\Contracts\Actions\Organization\InvitesUserAction as InvitesUserContract;
+use App\Data\InviteUserData;
 use App\Models\Organization;
+use App\Models\OrganizationInvite;
 use App\Models\User;
-use Illuminate\Support\Facades\URL;
+use App\Support\AuthorizesActions;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\Response;
 
-class InviteUserAction
+class InviteUserAction implements InvitesUserContract
 {
-    /**
-     * @return array{invite: OrganizationInvite, accept_url: string}
-     */
-    public function invite(Organization $organization, User $inviter, Role $actorRole, string $email, Role $role): array
+    use AuthorizesActions;
+
+    public function invite(User $actor, Organization $organization, InviteUserData $data): OrganizationInvite
     {
-        abort_unless(in_array($actorRole, [Role::Owner, Role::Admin], true), Response::HTTP_FORBIDDEN);
+        $this->authorizeForUser($actor, 'invite', [OrganizationInvite::class, $organization]);
 
-        $isExistingMember = $organization->members()
-            ->where('users.email', $email)
-            ->exists();
+        if ($organization->members()
+            ->where('users.email', $data->email)
+            ->exists()) {
+            throw new \Exception('This user is already a member.');
+        }
 
-        abort_if($isExistingMember, Response::HTTP_UNPROCESSABLE_ENTITY, 'This user is already a member.');
+        if ($organization->invites()
+            ->pending()
+            ->where('email', $data->email)
+            ->exists()) {
+            throw new \Exception('An active invitation already exists for this email.');
+        }
 
-        $hasActiveInvite = $organization->invites()
-            ->where('email', $email)
-            ->whereNull('accepted_at')
-            ->where(function ($query): void {
-                $query->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-            })
-            ->exists();
-
-        abort_if($hasActiveInvite, Response::HTTP_UNPROCESSABLE_ENTITY, 'An active invitation already exists for this email.');
-
-        $invite = $organization->invites()->create([
-            'invited_by_user_id' => $inviter->id,
-            'email' => $email,
-            'role' => $role->value,
+        $invitation = $organization->invites()->create([
+            'invited_by_user_id' => $actor->id,
+            'email' => $data->email,
+            'role' => $data->role,
             'token' => Str::random(64),
             'expires_at' => now()->addDays(7),
         ]);
 
-        $acceptUrl = URL::temporarySignedRoute(
-            name: 'invitations.accept',
-            expiration: $invite->expires_at ?? now()->addDays(7),
-            parameters: [
-                'token' => $invite->token,
-                'email' => $invite->email,
-            ],
-        );
-
-        return [
-            'invite' => $invite,
-            'accept_url' => $acceptUrl,
-        ];
+        return $invitation;
     }
 }

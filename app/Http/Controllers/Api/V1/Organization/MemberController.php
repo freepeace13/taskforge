@@ -6,7 +6,7 @@ use App\Actions\Organization\RemoveMemberAction;
 use App\Actions\Organization\UpdateMemberRoleAction;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Organization\UpdateOrganizationMemberRoleRequest;
+use App\Http\Requests\Organization\UpdateMemberRoleRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Queries\Organization\ListMembersQuery;
@@ -25,7 +25,7 @@ class MemberController extends Controller
         return UserResource::collection($cursorPaginator);
     }
 
-    public function update(UpdateOrganizationMemberRoleRequest $request, User $user, UpdateMemberRoleAction $action)
+    public function update(UpdateMemberRoleRequest $request, User $user, UpdateMemberRoleAction $action)
     {
         $action->update(
             organizationId: tenant()->organizationId,

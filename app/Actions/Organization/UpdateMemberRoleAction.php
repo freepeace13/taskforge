@@ -2,28 +2,29 @@
 
 namespace App\Actions\Organization;
 
-use App\Enums\Role;
+use App\Contracts\Actions\Organization\UpdatesMemberRoleAction as UpdatesMemberRoleContract;
+use App\Data\MemberData;
 use App\Models\OrganizationMember;
 use App\Models\User;
-use Symfony\Component\HttpFoundation\Response;
+use App\Support\AuthorizesActions;
 
-class UpdateMemberRoleAction
+class UpdateMemberRoleAction implements UpdatesMemberRoleContract
 {
-    public function update(int $organizationId, Role $actorRole, User $member, Role $role): OrganizationMember
-    {
-        abort_unless(in_array($actorRole, [Role::Owner, Role::Admin], true), Response::HTTP_FORBIDDEN);
+    use AuthorizesActions;
 
-        $organizationMember = OrganizationMember::query()
-            ->where('organization_id', $organizationId)
-            ->where('user_id', $member->id)
+    public function update(User $actor, MemberData $data): OrganizationMember
+    {
+        $member = OrganizationMember::query()
+            ->where('organization_id', $data->organizationId)
+            ->where('user_id', $data->userId)
             ->firstOrFail();
 
-        abort_if($organizationMember->role === Role::Owner, Response::HTTP_UNPROCESSABLE_ENTITY, 'Owner role cannot be changed.');
+        $this->authorizeForUser($actor, 'update', $member);
 
-        $organizationMember->update([
-            'role' => $role->value,
+        $member->update([
+            'role' => $data->role,
         ]);
 
-        return $organizationMember->refresh();
+        return $member;
     }
 }
