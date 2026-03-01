@@ -10,6 +10,15 @@ use Illuminate\Auth\Access\Response;
 
 class ProjectPolicy
 {
+    public function viewAny(User $user, Organization $organization)
+    {
+        if (! $user->belongsToOrganization($organization)) {
+            return Response::denyAsNotFound();
+        }
+
+        return true;
+    }
+
     public function create(User $user, Organization $organization)
     {
         if (! $user->belongsToOrganization($organization)) {

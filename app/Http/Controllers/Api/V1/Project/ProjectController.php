@@ -2,36 +2,47 @@
 
 namespace App\Http\Controllers\Api\V1\Project;
 
-use App\Actions\Project\CreateProjectAction;
-use App\Actions\Project\DeleteProjectAction;
-use App\Actions\Project\UpdateProjectAction;
+use App\Contracts\Actions\Project\CreatesProjectAction;
+use App\Contracts\Actions\Project\DeletesProjectAction;
+use App\Contracts\Actions\Project\UpdatesProjectAction;
+use App\Data\ProjectData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProjectController extends Controller
 {
-    public function index(Request $request)
+    use AuthorizesRequests;
+
+    public function index()
     {
-        $projects = Project::query()
-            ->where('organization_id', tenant()->organizationId)
+        $organization = tenant()->organization;
+        $this->authorize('viewAny', [Project::class, $organization]);
+
+        $projects = $organization->project()
             ->whereNull('archived_at')
             ->latest('id')
-            ->paginate($request->integer('per_page', 15));
+            ->paginate();
 
         return ProjectResource::collection($projects);
     }
 
-    public function store(StoreProjectRequest $request, CreateProjectAction $action)
+    public function store(StoreProjectRequest $request, CreatesProjectAction $action)
     {
+        $user = $request->user();
+        $organization = tenant()->organization;
+
         $project = $action->create(
-            organizationId: tenant()->organizationId,
-            name: $request->string('name')->toString(),
-            description: $request->string('description')->toNullableString(),
+            actor: $user,
+            organization: $organization,
+            data: new ProjectData(
+                name: $request->string('name'),
+                description: $request->string('description', null)
+            )
         );
 
         return (new ProjectResource($project))
@@ -41,34 +52,33 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
-        $this->ensureBelongsToTenant($project);
+        $this->authorize('view', $project);
 
         return new ProjectResource($project);
     }
 
-    public function update(UpdateProjectRequest $request, Project $project, UpdateProjectAction $action)
+    public function update(UpdateProjectRequest $request, Project $project, UpdatesProjectAction $action)
     {
-        $this->ensureBelongsToTenant($project);
+        $user = $request->user();
 
         $updated = $action->update(
+            actor: $user,
             project: $project,
-            attributes: $request->validated(),
+            data: new ProjectData(
+                name: $request->name,
+                description: $request->description
+            ),
         );
 
         return new ProjectResource($updated);
     }
 
-    public function destroy(Project $project, DeleteProjectAction $action)
+    public function destroy(Project $project, DeletesProjectAction $action)
     {
-        $this->ensureBelongsToTenant($project);
+        $user = request()->user();
 
-        $action->delete($project);
+        $action->delete(actor: $user, project: $project);
 
         return response()->noContent();
-    }
-
-    protected function ensureBelongsToTenant(Project $project): void
-    {
-        abort_if($project->organization_id !== tenant()->organizationId, Response::HTTP_NOT_FOUND);
     }
 }

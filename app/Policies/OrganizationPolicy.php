@@ -9,6 +9,15 @@ use Illuminate\Auth\Access\Response;
 
 class OrganizationPolicy
 {
+    public function view(User $user, Organization $organization)
+    {
+        if (! $user->belongsToOrganization($organization)) {
+            return Response::denyAsNotFound();
+        }
+
+        return true;
+    }
+
     public function create(User $user)
     {
         return true;

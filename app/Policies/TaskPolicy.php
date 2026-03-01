@@ -20,6 +20,28 @@ class TaskPolicy
         return true;
     }
 
+    public function viewAny(User $user, Project $project)
+    {
+        $organization = $project->organization;
+
+        if (! $user->belongsToOrganization($organization)) {
+            return Response::denyAsNotFound();
+        }
+
+        return true;
+    }
+
+    public function view(User $user, Task $task)
+    {
+        $organization = $task->project->organization;
+
+        if (! $user->belongsToOrganization($organization)) {
+            return Response::denyAsNotFound();
+        }
+
+        return true;
+    }
+
     public function update(User $user, Task $task)
     {
         $organization = $task->project->organization;

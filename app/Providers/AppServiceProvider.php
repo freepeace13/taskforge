@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Actions\Organization\AcceptInvitationAction;
+use App\Actions\Organization\InviteUserAction;
+use App\Contracts\Actions\Organization\AcceptsInvitationAction;
+use App\Contracts\Actions\Organization\InvitesUserAction;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +15,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(InvitesUserAction::class, InviteUserAction::class);
+        $this->app->bind(AcceptsInvitationAction::class, AcceptInvitationAction::class);
     }
 
     /**

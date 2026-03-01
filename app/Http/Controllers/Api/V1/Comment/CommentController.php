@@ -2,40 +2,42 @@
 
 namespace App\Http\Controllers\Api\V1\Comment;
 
-use App\Actions\Comment\CreateCommentAction;
-use App\Actions\Comment\DeleteCommentAction;
-use App\Actions\Comment\UpdateCommentAction;
+use App\Contracts\Actions\Comment\CreatesCommentAction;
+use App\Contracts\Actions\Comment\DeletesCommentAction;
+use App\Contracts\Actions\Comment\UpdatesCommentAction;
+use App\Data\CommentData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comment\StoreCommentRequest;
 use App\Http\Requests\Comment\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
 use App\Models\Comment;
-use App\Models\Project;
 use App\Models\Task;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Symfony\Component\HttpFoundation\Response;
 
 class CommentController extends Controller
 {
-    public function index(Project $project, Task $task)
-    {
-        $this->ensureTaskBelongsToProjectAndTenant($project, $task);
+    use AuthorizesRequests;
 
-        $comments = Comment::query()
-            ->where('task_id', $task->id)
+    public function index(Task $task)
+    {
+        $this->authorize('viewAny', [Comment::class, $task]);
+
+        $comments = $task->comments()
             ->orderBy('created_at')
             ->get();
 
         return CommentResource::collection($comments);
     }
 
-    public function store(StoreCommentRequest $request, Project $project, Task $task, CreateCommentAction $action)
+    public function store(StoreCommentRequest $request, Task $task, CreatesCommentAction $action)
     {
-        $this->ensureTaskBelongsToProjectAndTenant($project, $task);
-
         $comment = $action->create(
+            actor: $request->user(),
             task: $task,
-            user: $request->user(),
-            body: $request->string('body')->toString(),
+            data: new CommentData(
+                body: $request->string('body')
+            )
         );
 
         return (new CommentResource($comment))
@@ -43,41 +45,26 @@ class CommentController extends Controller
             ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function update(UpdateCommentRequest $request, Project $project, Task $task, Comment $comment, UpdateCommentAction $action)
+    public function update(UpdateCommentRequest $request, Comment $comment, UpdatesCommentAction $action)
     {
-        $this->ensureCommentBelongsToTaskProjectAndTenant($project, $task, $comment);
-
         $updated = $action->update(
-            comment: $comment,
             actor: $request->user(),
-            body: $request->string('body')->toString(),
+            comment: $comment,
+            data: new CommentData(
+                body: $request->string('body')
+            )
         );
 
         return new CommentResource($updated);
     }
 
-    public function destroy(Project $project, Task $task, Comment $comment, DeleteCommentAction $action)
+    public function destroy(Comment $comment, DeletesCommentAction $action)
     {
-        $this->ensureCommentBelongsToTaskProjectAndTenant($project, $task, $comment);
-
         $action->delete(
+            actor: request()->user,
             comment: $comment,
-            actor: request()->user(),
         );
 
         return response()->noContent();
-    }
-
-    protected function ensureTaskBelongsToProjectAndTenant(Project $project, Task $task): void
-    {
-        abort_if($project->organization_id !== tenant()->organizationId, Response::HTTP_NOT_FOUND);
-        abort_if($task->project_id !== $project->id, Response::HTTP_NOT_FOUND);
-    }
-
-    protected function ensureCommentBelongsToTaskProjectAndTenant(Project $project, Task $task, Comment $comment): void
-    {
-        $this->ensureTaskBelongsToProjectAndTenant($project, $task);
-
-        abort_if($comment->task_id !== $task->id, Response::HTTP_NOT_FOUND);
     }
 }

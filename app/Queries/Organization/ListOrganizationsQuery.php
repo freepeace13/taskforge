@@ -8,7 +8,7 @@ class ListOrganizationsQuery
 
     public function __construct(
         public int $userId,
-        public string $search = ''
+        public ?string $search
     ) {}
 
     public function shouldPaginate(): bool

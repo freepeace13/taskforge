@@ -8,5 +8,5 @@ use App\Models\User;
 
 interface UpdatesTaskAction
 {
-    public function update(User $user, Task $task, TaskData $data): Task;
+    public function update(User $actor, Task $task, TaskData $data): Task;
 }

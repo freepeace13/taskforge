@@ -2,47 +2,46 @@
 
 namespace App\Http\Controllers\Api\V1\Project;
 
-use App\Actions\Project\ArchiveProjectAction;
-use App\Actions\Project\RestoreProjectAction;
+use App\Contracts\Actions\Project\ArchivesProjectAction;
+use App\Contracts\Actions\Project\RestoresProjectAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ArchiveController extends Controller
 {
-    public function index(Request $request)
+    use AuthorizesRequests;
+
+    public function index()
     {
-        $projects = Project::query()
-            ->where('organization_id', tenant()->organizationId)
+        $organization = tenant()->organization;
+
+        $this->authorize('viewAny', [Project::class, $organization]);
+
+        $projects = $organization->projects()
             ->whereNotNull('archived_at')
             ->latest('id')
-            ->paginate($request->integer('per_page', 15));
+            ->paginate();
 
         return ProjectResource::collection($projects);
     }
 
-    public function archive(Project $project, ArchiveProjectAction $action)
+    public function archive(Project $project, ArchivesProjectAction $action)
     {
-        $this->ensureBelongsToTenant($project);
+        $user = request()->user();
 
-        $archived = $action->archive($project);
+        $archived = $action->archive(actor: $user, project: $project);
 
         return new ProjectResource($archived);
     }
 
-    public function restore(Project $project, RestoreProjectAction $action)
+    public function restore(Project $project, RestoresProjectAction $action)
     {
-        $this->ensureBelongsToTenant($project);
+        $user = request()->user();
 
-        $restored = $action->restore($project);
+        $restored = $action->restore(actor: $user, project: $project);
 
         return new ProjectResource($restored);
-    }
-
-    protected function ensureBelongsToTenant(Project $project): void
-    {
-        abort_if($project->organization_id !== tenant()->organizationId, Response::HTTP_NOT_FOUND);
     }
 }

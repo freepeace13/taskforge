@@ -6,6 +6,6 @@ class OrganizationData
 {
     public function __construct(
         public readonly string $name,
-        public readonly ?string $logo
+        public readonly ?string $logo = null
     ) {}
 }

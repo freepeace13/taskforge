@@ -7,5 +7,5 @@ use App\Models\User;
 
 interface DeletesOrganizationAction
 {
-    public function delete(User $user, Organization $organization);
+    public function delete(User $actor, Organization $organization);
 }

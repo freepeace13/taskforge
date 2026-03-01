@@ -2,67 +2,78 @@
 
 namespace App\Http\Controllers\Api\V1\Organization;
 
-use App\Actions\Organization\CreateOrganizationAction;
+use App\Contracts\Actions\Organization\CreatesOrganizationAction;
+use App\Contracts\Actions\Organization\DeletesOrganizationAction;
+use App\Contracts\Actions\Organization\UpdatesOrganizationAction;
+use App\Data\OrganizationData;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Organization\StoreOrganizationRequest;
+use App\Http\Requests\Organization\UpdateOrganizationRequest;
 use App\Http\Resources\OrganizationResource;
 use App\Models\Organization;
 use App\Queries\Organization\ListOrganizationsQuery;
 use App\Queries\Organization\ListOrganizationsQueryHandler;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
 {
-    public function index(Request $request)
+    use AuthorizesRequests;
+
+    public function index(Request $request, ListOrganizationsQueryHandler $handler)
     {
-        $handler = app(ListOrganizationsQueryHandler::class);
+        $user = $request->user();
+        $search = $request->string('q', null);
 
         $cursorPaginator = $handler->handle(new ListOrganizationsQuery(
-            userId: $request->user()->id,
-            search: $request->string('q', ''),
+            userId: $user->id,
+            search: $search,
         ));
 
         return OrganizationResource::collection($cursorPaginator);
     }
 
-    public function store(Request $request)
+    public function store(StoreOrganizationRequest $request, CreatesOrganizationAction $action)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:120'],
-        ]);
-
-        $creator = app(CreateOrganizationAction::class);
-
-        $organization = $creator->create(
-            ownerId: $request->user()->id,
-            name: $validated['name']
+        $organization = $action->create(
+            actor: $request->user(),
+            data: new OrganizationData(
+                name: $request->name
+            )
         );
 
         return new OrganizationResource($organization);
     }
 
-    public function show(Request $request, Organization $organization)
+    public function show(Organization $organization)
     {
-        $user = $request->user();
-
-        // Quick membership check (we’ll replace with Policy soon)
-        $isMember = $organization->members()
-            ->where('users.id', $user->id)
-            ->exists();
-
-        abort_unless($isMember, 403);
-
-        $organization->load(['owner']);
+        $this->authorize('view', $organization);
 
         return new OrganizationResource($organization);
     }
 
-    public function update(Request $request)
+    public function update(UpdateOrganizationRequest $request, UpdatesOrganizationAction $action)
     {
-        //
+        $logo = $request->has('logo') ? $request->file('logo') : null;
+
+        $organization = $action->update(
+            actor: $request->user(),
+            organization: tenant()->organization,
+            data: new OrganizationData(
+                name: $request->name,
+                logo: $logo
+            )
+        );
+
+        return new OrganizationResource($organization);
     }
 
-    public function destroy(Organization $org)
+    public function destroy(Organization $org, DeletesOrganizationAction $action)
     {
-        //
+        $user = request()->user();
+
+        $action->delete(actor: $user, organization: $org);
+
+        return response()->noContent();
     }
 }

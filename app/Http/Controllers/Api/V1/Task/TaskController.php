@@ -2,43 +2,45 @@
 
 namespace App\Http\Controllers\Api\V1\Task;
 
-use App\Actions\Task\CreateTaskAction;
-use App\Actions\Task\DeleteTaskAction;
-use App\Actions\Task\UpdateTaskAction;
+use App\Contracts\Actions\Task\CreatesTaskAction;
+use App\Contracts\Actions\Task\DeletesTaskAction;
+use App\Contracts\Actions\Task\UpdatesTaskAction;
+use App\Data\TaskData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Project;
 use App\Models\Task;
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Symfony\Component\HttpFoundation\Response;
 
 class TaskController extends Controller
 {
-    public function index(Request $request, Project $project)
-    {
-        $this->ensureProjectBelongsToTenant($project);
+    use AuthorizesRequests;
 
-        $tasks = Task::query()
-            ->where('project_id', $project->id)
+    public function index(Project $project)
+    {
+        $this->authorize('viewAny', [Task::class, $project]);
+
+        $tasks = $project->tasks()
             ->latest('id')
-            ->paginate($request->integer('per_page', 15));
+            ->paginate();
 
         return TaskResource::collection($tasks);
     }
 
-    public function store(StoreTaskRequest $request, Project $project, CreateTaskAction $action)
+    public function store(StoreTaskRequest $request, Project $project, CreatesTaskAction $action)
     {
-        $this->ensureProjectBelongsToTenant($project);
-
         $task = $action->create(
+            actor: $request->user(),
             project: $project,
-            title: $request->string('title')->toString(),
-            description: $request->string('description')->toNullableString(),
-            priority: $request->string('priority')->toNullableString(),
-            dueDate: $request->string('due_date')->toNullableString(),
-            assignedToUserId: $request->integer('assigned_to_user_id'),
+            data: new TaskData(
+                title: $request->string('title'),
+                description: $request->string('description'),
+                priority: $request->string('priority'),
+                dueDate: $request->string('due_date')
+            )
         );
 
         return (new TaskResource($task))
@@ -46,43 +48,36 @@ class TaskController extends Controller
             ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function show(Project $project, Task $task)
+    public function show(Task $task)
     {
-        $this->ensureTaskBelongsToProjectAndTenant($project, $task);
+        $this->authorize('view', $task);
 
         return new TaskResource($task);
     }
 
-    public function update(UpdateTaskRequest $request, Project $project, Task $task, UpdateTaskAction $action)
+    public function update(UpdateTaskRequest $request, Task $task, UpdatesTaskAction $action)
     {
-        $this->ensureTaskBelongsToProjectAndTenant($project, $task);
-
         $updated = $action->update(
+            actor: $request->user(),
             task: $task,
-            attributes: $request->validated(),
+            data: new TaskData(
+                title: $request->string('title'),
+                description: $request->string('description'),
+                priority: $request->string('priority'),
+                dueDate: $request->string('due_date')
+            ),
         );
 
         return new TaskResource($updated);
     }
 
-    public function destroy(Project $project, Task $task, DeleteTaskAction $action)
+    public function destroy(Task $task, DeletesTaskAction $action)
     {
-        $this->ensureTaskBelongsToProjectAndTenant($project, $task);
-
-        $action->delete($task);
+        $action->delete(
+            actor: request()->user(),
+            task: $task
+        );
 
         return response()->noContent();
-    }
-
-    protected function ensureProjectBelongsToTenant(Project $project): void
-    {
-        abort_if($project->organization_id !== tenant()->organizationId, Response::HTTP_NOT_FOUND);
-    }
-
-    protected function ensureTaskBelongsToProjectAndTenant(Project $project, Task $task): void
-    {
-        $this->ensureProjectBelongsToTenant($project);
-
-        abort_if($task->project_id !== $project->id, Response::HTTP_NOT_FOUND);
     }
 }
