@@ -3,11 +3,9 @@
 namespace Tests\Feature;
 
 use App\Enums\Role;
-use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -18,7 +16,7 @@ class OrganizationInvitationApiTest extends TestCase
 
     public function test_owner_can_create_invitation(): void
     {
-        [$organization, $owner] = $this->createOrganizationWithMember(Role::Owner);
+        [$organization, $owner] = $this->createOrganizationWithMember();
         Sanctum::actingAs($owner);
 
         $this->postJson('/api/v1/orgs/'.$organization->slug.'/invitations', [
@@ -41,7 +39,7 @@ class OrganizationInvitationApiTest extends TestCase
 
     public function test_duplicate_active_invitation_is_blocked(): void
     {
-        [$organization, $owner] = $this->createOrganizationWithMember(Role::Owner);
+        [$organization, $owner] = $this->createOrganizationWithMember();
         Sanctum::actingAs($owner);
 
         OrganizationInvite::query()->create([
@@ -60,7 +58,7 @@ class OrganizationInvitationApiTest extends TestCase
 
     public function test_inviting_existing_member_is_blocked(): void
     {
-        [$organization, $owner] = $this->createOrganizationWithMember(Role::Owner);
+        [$organization, $owner] = $this->createOrganizationWithMember();
         $member = User::factory()->create(['email' => 'already-member@example.com']);
         $organization->members()->attach($member->id, ['role' => Role::Member->value]);
         Sanctum::actingAs($owner);
@@ -73,7 +71,7 @@ class OrganizationInvitationApiTest extends TestCase
 
     public function test_invitation_listing_filters_by_status(): void
     {
-        [$organization, $owner] = $this->createOrganizationWithMember(Role::Owner);
+        [$organization, $owner] = $this->createOrganizationWithMember();
         Sanctum::actingAs($owner);
 
         OrganizationInvite::query()->create([
@@ -121,24 +119,13 @@ class OrganizationInvitationApiTest extends TestCase
             'expires_at' => now()->addDay(),
         ]);
 
+        $url = $invite->createTemporarySignedRoute();
+
         $this->deleteJson('/api/v1/orgs/'.$organization->slug.'/invitations/'.$invite->id)
             ->assertNoContent();
-
-        $url = URL::temporarySignedRoute('invitations.accept', now()->addHour(), [
-            'token' => $invite->token,
-            'email' => $invite->email,
-        ]);
 
         $this->getJson($url)->assertNotFound();
     }
 
-    private function createOrganizationWithMember(Role $role): array
-    {
-        $organization = Organization::factory()->create();
-        $user = User::query()->findOrFail($organization->owner_id);
-
-        $organization->members()->attach($user->id, ['role' => $role->value]);
-
-        return [$organization, $user];
-    }
+    // createOrganizationWithMember comes from InteractsWithTenant on the base TestCase
 }

@@ -6,12 +6,19 @@ use App\Contracts\Actions\Task\AssignsTaskAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Task\AssignTaskRequest;
 use App\Http\Resources\TaskResource;
+use App\Models\Organization;
+use App\Models\Project;
 use App\Models\Task;
 
 class AssigneeController extends Controller
 {
-    public function assign(AssignTaskRequest $request, Task $task, AssignsTaskAction $action)
-    {
+    public function assign(
+        Organization $org,
+        Project $project,
+        Task $task,
+        AssignTaskRequest $request,
+        AssignsTaskAction $action
+    ) {
         $updated = $action->assign(
             actor: $request->user(),
             task: $task,
@@ -21,8 +28,12 @@ class AssigneeController extends Controller
         return new TaskResource($updated);
     }
 
-    public function unassign(Task $task, AssignsTaskAction $action)
-    {
+    public function unassign(
+        Organization $org,
+        Project $project,
+        Task $task,
+        AssignsTaskAction $action
+    ) {
         $updated = $action->assign(
             actor: request()->user(),
             task: $task,

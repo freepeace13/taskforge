@@ -21,7 +21,7 @@ class CreateTaskAction implements CreatesTaskContract
             'title' => $data->title,
             'description' => $data->description,
             'priority' => $data->priority,
-            'due_date' => $data->dueDate
+            'due_date' => $data->dueDate,
         ]);
 
         return $task;

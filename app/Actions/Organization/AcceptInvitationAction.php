@@ -7,6 +7,7 @@ use App\Models\OrganizationInvite;
 use App\Models\User;
 use App\Support\AuthorizesActions;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
 
 class AcceptInvitationAction implements AcceptsInvitationContract
 {
@@ -16,7 +17,6 @@ class AcceptInvitationAction implements AcceptsInvitationContract
     {
         $this->authorizeForUser($actor, 'accept', $invite);
 
-        $this->ensureInvitationValidity($invite);
         $this->ensureNotYetMember($actor, $invite);
 
         $organization = $invite->organization;
@@ -30,7 +30,7 @@ class AcceptInvitationAction implements AcceptsInvitationContract
         });
     }
 
-    protected function ensureNotYetMember($user, $invite)
+    protected function ensureNotYetMember(User $user, OrganizationInvite $invite): void
     {
         $member = $invite->organization->members()
             ->where('users.id', $user->id)
@@ -41,16 +41,7 @@ class AcceptInvitationAction implements AcceptsInvitationContract
                 $invite->update(['accepted_at' => $member->created_at]);
             }
 
-            throw new \Exception('User is already a member of this organization.');
-        }
-    }
-
-    protected function ensureInvitationValidity($invite)
-    {
-        $expired = ! is_null($invite->expires_at) && $invite->expires_at->isPast();
-
-        if (! is_null($invite->accepted_at) || $expired) {
-            throw new \Exception('The invitation has already been accepted or expired.');
+            abort(Response::HTTP_UNPROCESSABLE_ENTITY, 'User is already a member of this organization.');
         }
     }
 }

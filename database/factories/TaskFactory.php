@@ -16,6 +16,8 @@ class TaskFactory extends Factory
      */
     public function definition(): array
     {
+        $dueDate = fake()->optional()->dateTimeBetween('now', '+1 month');
+
         return [
             'project_id' => \App\Models\Project::factory(),
             'assigned_to_user_id' => null,
@@ -23,7 +25,7 @@ class TaskFactory extends Factory
             'description' => fake()->optional()->paragraph(),
             'status' => 'todo',
             'priority' => 'medium',
-            'due_date' => fake()->optional()->dateTimeBetween('now', '+1 month')->format('Y-m-d'),
+            'due_date' => $dueDate ? $dueDate->format('Y-m-d') : null,
             'completed_at' => null,
         ];
     }

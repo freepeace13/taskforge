@@ -5,6 +5,7 @@ namespace Tests\Unit\Comment;
 use App\Actions\Comment\CreateCommentAction;
 use App\Actions\Comment\DeleteCommentAction;
 use App\Actions\Comment\UpdateCommentAction;
+use App\Data\CommentData;
 use App\Enums\Role;
 use App\Models\Comment;
 use App\Models\Organization;
@@ -12,9 +13,8 @@ use App\Models\OrganizationMember;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class CommentActionsTest extends TestCase
@@ -37,9 +37,9 @@ class CommentActionsTest extends TestCase
         $action = app(CreateCommentAction::class);
 
         $comment = $action->create(
+            actor: $user,
             task: $task,
-            user: $user,
-            body: 'A comment',
+            data: new CommentData(body: 'A comment'),
         );
 
         $this->assertInstanceOf(Comment::class, $comment);
@@ -61,22 +61,36 @@ class CommentActionsTest extends TestCase
 
         $action = app(CreateCommentAction::class);
 
-        $this->expectException(HttpException::class);
-        $this->expectExceptionCode(Response::HTTP_FORBIDDEN);
+        $this->expectException(AuthorizationException::class);
         $this->expectExceptionMessage('You are not a member of this organization.');
 
         $action->create(
+            actor: $user,
             task: $task,
-            user: $user,
-            body: 'A comment',
+            data: new CommentData(body: 'A comment'),
         );
     }
 
     public function test_update_comment_action_allows_author_and_blocks_others(): void
     {
+        $organization = Organization::factory()->create();
+        $project = Project::factory()->for($organization)->create();
+        $task = Task::factory()->for($project)->create();
         $author = User::factory()->create();
         $other = User::factory()->create();
-        $comment = Comment::factory()->create([
+
+        OrganizationMember::query()->create([
+            'organization_id' => $organization->id,
+            'user_id' => $author->id,
+            'role' => Role::Member->value,
+        ]);
+        OrganizationMember::query()->create([
+            'organization_id' => $organization->id,
+            'user_id' => $other->id,
+            'role' => Role::Member->value,
+        ]);
+
+        $comment = Comment::factory()->for($task)->create([
             'user_id' => $author->id,
             'body' => 'Old',
         ]);
@@ -86,27 +100,41 @@ class CommentActionsTest extends TestCase
         $updated = $action->update(
             comment: $comment,
             actor: $author,
-            body: 'New',
+            data: new CommentData(body: 'New'),
         );
 
         $this->assertSame('New', $updated->body);
 
-        $this->expectException(HttpException::class);
-        $this->expectExceptionCode(Response::HTTP_FORBIDDEN);
+        $this->expectException(AuthorizationException::class);
         $this->expectExceptionMessage('You are not allowed to update this comment.');
 
         $action->update(
             comment: $comment,
             actor: $other,
-            body: 'Other',
+            data: new CommentData(body: 'Other'),
         );
     }
 
     public function test_delete_comment_action_soft_deletes_for_author_only(): void
     {
+        $organization = Organization::factory()->create();
+        $project = Project::factory()->for($organization)->create();
+        $task = Task::factory()->for($project)->create();
         $author = User::factory()->create();
         $other = User::factory()->create();
-        $comment = Comment::factory()->create([
+
+        OrganizationMember::query()->create([
+            'organization_id' => $organization->id,
+            'user_id' => $author->id,
+            'role' => Role::Member->value,
+        ]);
+        OrganizationMember::query()->create([
+            'organization_id' => $organization->id,
+            'user_id' => $other->id,
+            'role' => Role::Member->value,
+        ]);
+
+        $comment = Comment::factory()->for($task)->create([
             'user_id' => $author->id,
         ]);
 
@@ -121,11 +149,10 @@ class CommentActionsTest extends TestCase
             'id' => $comment->id,
         ]);
 
-        $this->expectException(HttpException::class);
-        $this->expectExceptionCode(Response::HTTP_FORBIDDEN);
+        $this->expectException(AuthorizationException::class);
         $this->expectExceptionMessage('You are not allowed to delete this comment.');
 
-        $anotherComment = Comment::factory()->create([
+        $anotherComment = Comment::factory()->for($task)->create([
             'user_id' => $author->id,
         ]);
 

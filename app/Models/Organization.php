@@ -7,25 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Organization extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'name',
         'slug',
         'owner_id',
     ];
-
-    /**
-     * Get the route key for the model.
-     */
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
 
     public function owner(): BelongsTo
     {
@@ -47,5 +38,10 @@ class Organization extends Model
     public function projects(): HasMany
     {
         return $this->hasMany(Project::class);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
     }
 }

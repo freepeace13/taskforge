@@ -15,10 +15,6 @@ class CancelInvitationAction implements CancelsInvitationContract
     {
         $this->authorizeForUser($actor, 'cancel', $invitation);
 
-        if (! is_null($invitation->accepted_at)) {
-            throw new \Exception('Accepted invitations cannot be revoked.');
-        }
-
         $invitation->delete();
     }
 }

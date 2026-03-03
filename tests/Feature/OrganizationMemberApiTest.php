@@ -16,7 +16,7 @@ class OrganizationMemberApiTest extends TestCase
 
     public function test_owner_can_update_member_role_and_remove_member(): void
     {
-        [$organization, $owner] = $this->createOrganizationWithRole(Role::Owner);
+        [$organization, $owner] = $this->createOrganizationWithMember(Role::Owner);
         $member = User::factory()->create();
         $organization->members()->attach($member->id, ['role' => Role::Member->value]);
 
@@ -43,7 +43,7 @@ class OrganizationMemberApiTest extends TestCase
 
     public function test_non_admin_member_cannot_update_or_remove_members(): void
     {
-        [$organization, $actor] = $this->createOrganizationWithRole(Role::Member);
+        [$organization, $actor] = $this->createOrganizationWithMember(Role::Member);
         $target = User::factory()->create();
         $organization->members()->attach($target->id, ['role' => Role::Member->value]);
 
@@ -80,13 +80,5 @@ class OrganizationMemberApiTest extends TestCase
             ->assertUnprocessable();
     }
 
-    private function createOrganizationWithRole(Role $role): array
-    {
-        $organization = Organization::factory()->create();
-        $user = User::query()->findOrFail($organization->owner_id);
-
-        $organization->members()->attach($user->id, ['role' => $role->value]);
-
-        return [$organization, $user];
-    }
+    // createOrganizationWithMember comes from InteractsWithTenant on the base TestCase
 }

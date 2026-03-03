@@ -23,7 +23,7 @@ class UpdateOrganizationRequest extends FormRequest
     {
         return [
             'name' => ['nullable', 'string', 'max:120'],
-            'logo' => ['nullable']
+            'logo' => ['nullable'],
         ];
     }
 }

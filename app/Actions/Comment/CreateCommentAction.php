@@ -15,9 +15,7 @@ class CreateCommentAction implements CreatesCommentContract
 
     public function create(User $actor, Task $task, CommentData $data): Comment
     {
-        $organization = $task->project->organization;
-
-        $this->authorizeForUser($actor, 'create', [Comment::class, $organization]);
+        $this->authorizeForUser($actor, 'create', [Comment::class, $task]);
 
         return $task->comments()->create([
             'task_id' => $task->id,

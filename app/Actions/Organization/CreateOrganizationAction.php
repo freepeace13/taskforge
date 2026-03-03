@@ -24,8 +24,8 @@ class CreateOrganizationAction implements CreatesOrganizationContract
             'owner_id' => $actor->id,
         ]);
 
-        $organization->members()->attach($actor, [
-            'role' => Role::Owner
+        $organization->members()->attach($actor->id, [
+            'role' => Role::Owner->value,
         ]);
 
         return $organization;

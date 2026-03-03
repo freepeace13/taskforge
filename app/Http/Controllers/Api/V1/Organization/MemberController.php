@@ -33,8 +33,12 @@ class MemberController extends Controller
         return MemberResource::collection($cursorPaginator);
     }
 
-    public function update(UpdateMemberRoleRequest $request, User $user,  UpdatesMemberRoleAction $action)
+    public function update(UpdateMemberRoleRequest $request, User|string $user, UpdatesMemberRoleAction $action)
     {
+        $user = $user instanceof User
+            ? $user
+            : User::query()->findOrFail($request->route('user'));
+
         $member = $action->update(
             actor: $request->user(),
             data: new MemberData(
@@ -47,8 +51,12 @@ class MemberController extends Controller
         return new MemberResource($member);
     }
 
-    public function destroy(User $user, RemovesMemberAction $action)
+    public function destroy(User|string $user, RemovesMemberAction $action)
     {
+        $user = $user instanceof User
+            ? $user
+            : User::query()->findOrFail(request()->route('user'));
+
         $action->remove(
             actor: tenant()->user,
             organization: tenant()->organization,

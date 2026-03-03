@@ -27,10 +27,6 @@ class MemberPolicy
             return Response::denyAsNotFound();
         }
 
-        if ($member->user->isNot($user)) {
-            return $user->organizationRole($organization) === Role::Owner;
-        }
-
         return $user->hasAnyOrganizationRole($organization, [Role::Admin, Role::Owner]);
     }
 
@@ -40,10 +36,6 @@ class MemberPolicy
 
         if (! $user->belongsToOrganization($organization)) {
             return Response::denyAsNotFound();
-        }
-
-        if ($member->role === Role::Owner) {
-            return Response::deny('Cannot remove owners from the organization.');
         }
 
         return $user->hasAnyOrganizationRole($organization, [Role::Admin, Role::Owner]);

@@ -3,9 +3,9 @@
 namespace App\Actions\Organization;
 
 use App\Contracts\Actions\Organization\UpdatesOrganizationAction as UpdatesOrganizationContract;
-use App\Models\User;
-use App\Models\Organization;
 use App\Data\OrganizationData;
+use App\Models\Organization;
+use App\Models\User;
 use App\Support\AuthorizesActions;
 
 class UpdateOrganizationAction implements UpdatesOrganizationContract

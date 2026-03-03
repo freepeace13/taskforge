@@ -30,17 +30,15 @@ Route::group([
 
         Route::get('orgs', [OrganizationController::class, 'index']);
         Route::post('orgs', [OrganizationController::class, 'store']);
-        Route::get('orgs/{org}', [OrganizationController::class, 'show']);
-        Route::patch('orgs/{org}', [OrganizationController::class, 'update']);
-        Route::delete('orgs/{org}', [OrganizationController::class, 'destroy']);
+        Route::patch('orgs/{org:slug}', [OrganizationController::class, 'update']);
 
         Route::group([
-            'prefix' => 'orgs/{org}',
+            'prefix' => 'orgs/{org:slug}',
             'middleware' => [ResolveOrganization::class],
         ], function () {
+            Route::get('', [OrganizationController::class, 'show']);
+            Route::delete('', [OrganizationController::class, 'destroy']);
             Route::get('activity', [ActivityLogController::class, 'index']);
-            Route::get('projects/{project}/activity', [ActivityLogController::class, 'projects']);
-            Route::get('tasks/{task}/activity', [ActivityLogController::class, 'tasks']);
 
             Route::get('members', [MemberController::class, 'index']);
             // Route::post('members', [MemberController::class, 'store']);
@@ -60,6 +58,7 @@ Route::group([
             Route::get('projects/{project}/archived', [ArchiveController::class, 'index']);
             Route::post('projects/{project}/archive', [ArchiveController::class, 'archive']);
             Route::post('projects/{project}/restore', [ArchiveController::class, 'restore']);
+            Route::get('projects/{project}/activity', [ActivityLogController::class, 'projects']);
 
             Route::group([
                 'prefix' => 'projects/{project}',
@@ -69,6 +68,7 @@ Route::group([
                 Route::get('tasks/{task}', [TaskController::class, 'show']);
                 Route::patch('tasks/{task}', [TaskController::class, 'update']);
                 Route::delete('tasks/{task}', [TaskController::class, 'destroy']);
+                Route::get('tasks/{task}/activity', [ActivityLogController::class, 'tasks']);
 
                 Route::group([
                     'prefix' => 'tasks/{task}',

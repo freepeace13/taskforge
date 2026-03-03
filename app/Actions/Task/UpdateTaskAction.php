@@ -23,7 +23,6 @@ class UpdateTaskAction implements UpdatesTaskContract
             'due_date' => $data->dueDate ?? $task->due_date,
         ]);
 
-
         return $task;
     }
 }

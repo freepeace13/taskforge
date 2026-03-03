@@ -14,18 +14,18 @@ use App\Models\OrganizationInvite;
 use App\Queries\Organization\ListOrganizationInvitationsQuery;
 use App\Queries\Organization\ListOrganizationInvitationsQueryHandler;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Symfony\Component\HttpFoundation\Response;
 
 class InvitationController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(ListOrganizationInvitationsQueryHandler $handler)
+    public function index(Organization $org, ListOrganizationInvitationsQueryHandler $handler)
     {
-        $organization = tenant()->organization;
-        $this->authorize('viewAny', [OrganizationInvite::class, $organization]);
+        $this->authorize('viewAny', [OrganizationInvite::class, $org]);
 
         $invites = $handler->handle(new ListOrganizationInvitationsQuery(
-            organizationId: $organization->id,
+            organizationId: $org->id,
             status: request()->string('status', null),
             search: request()->string('q', null),
             perPage: request()->integer('per_page', 10),
@@ -48,14 +48,16 @@ class InvitationController extends Controller
             )
         );
 
-        return new InvitationResource($invitation);
+        return (new InvitationResource($invitation))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function destroy(OrganizationInvite $invite, CancelsInvitationAction $action)
+    public function destroy(Organization $org, OrganizationInvite $invitation, CancelsInvitationAction $action)
     {
         $user = request()->user();
 
-        $action->cancel(actor: $user, invitation: $invite);
+        $action->cancel(actor: $user, invitation: $invitation);
 
         return response()->noContent();
     }

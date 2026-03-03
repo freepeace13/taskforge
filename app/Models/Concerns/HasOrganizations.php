@@ -45,6 +45,16 @@ trait HasOrganizations
 
     public function hasAnyOrganizationRole($org, ...$roles): bool
     {
-        return in_array($this->organizationRole($org), [...$roles], true);
+        $normalizedRoles = [];
+
+        foreach ($roles as $role) {
+            if (is_array($role)) {
+                $normalizedRoles = [...$normalizedRoles, ...$role];
+            } else {
+                $normalizedRoles[] = $role;
+            }
+        }
+
+        return in_array($this->organizationRole($org), $normalizedRoles, true);
     }
 }

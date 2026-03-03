@@ -9,6 +9,7 @@ use App\Models\OrganizationInvite;
 use App\Models\User;
 use App\Support\AuthorizesActions;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class InviteUserAction implements InvitesUserContract
 {
@@ -21,14 +22,18 @@ class InviteUserAction implements InvitesUserContract
         if ($organization->members()
             ->where('users.email', $data->email)
             ->exists()) {
-            throw new \Exception('This user is already a member.');
+            throw ValidationException::withMessages([
+                'email' => 'This user is already a member.',
+            ]);
         }
 
         if ($organization->invites()
             ->pending()
             ->where('email', $data->email)
             ->exists()) {
-            throw new \Exception('An active invitation already exists for this email.');
+            throw ValidationException::withMessages([
+                'email' => 'An active invitation already exists for this email.',
+            ]);
         }
 
         $invitation = $organization->invites()->create([

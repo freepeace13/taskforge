@@ -10,12 +10,17 @@ use Illuminate\Auth\Access\Response;
 
 class CommentPolicy
 {
+    public function viewAny(User $user, Task $task)
+    {
+        return $this->create($user, $task);
+    }
+
     public function create(User $user, Task $task)
     {
         $organization = $task->project->organization;
 
         if (! $user->belongsToOrganization($organization)) {
-            return Response::denyAsNotFound();
+            return Response::denyAsNotFound('You are not a member of this organization.');
         }
 
         return true;
@@ -30,7 +35,11 @@ class CommentPolicy
             return Response::denyAsNotFound();
         }
 
-        return $task->user->is($user);
+        if ($comment->user->isNot($user)) {
+            return Response::deny('You are not allowed to update this comment.');
+        }
+
+        return true;
     }
 
     public function delete(User $user, Comment $comment)
@@ -43,8 +52,12 @@ class CommentPolicy
         }
 
         // Owner can delete any member's comment
-        if ($task->user->isNot($user)) {
-            return $user->organizationRole($organization) === Role::Owner;
+        if ($comment->user->isNot($user)) {
+            if ($user->organizationRole($organization) === Role::Owner) {
+                return true;
+            }
+
+            return Response::deny('You are not allowed to delete this comment.');
         }
 
         return true;

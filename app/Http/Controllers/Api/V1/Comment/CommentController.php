@@ -11,6 +11,8 @@ use App\Http\Requests\Comment\StoreCommentRequest;
 use App\Http\Requests\Comment\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
 use App\Models\Comment;
+use App\Models\Organization;
+use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +21,7 @@ class CommentController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Task $task)
+    public function index(Organization $org, Project $project, Task $task)
     {
         $this->authorize('viewAny', [Comment::class, $task]);
 
@@ -30,7 +32,7 @@ class CommentController extends Controller
         return CommentResource::collection($comments);
     }
 
-    public function store(StoreCommentRequest $request, Task $task, CreatesCommentAction $action)
+    public function store(StoreCommentRequest $request, Organization $org, Project $project, Task $task, CreatesCommentAction $action)
     {
         $comment = $action->create(
             actor: $request->user(),
@@ -45,7 +47,7 @@ class CommentController extends Controller
             ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function update(UpdateCommentRequest $request, Comment $comment, UpdatesCommentAction $action)
+    public function update(UpdateCommentRequest $request, Organization $org, Project $project, Task $task, Comment $comment, UpdatesCommentAction $action)
     {
         $updated = $action->update(
             actor: $request->user(),
@@ -58,10 +60,10 @@ class CommentController extends Controller
         return new CommentResource($updated);
     }
 
-    public function destroy(Comment $comment, DeletesCommentAction $action)
+    public function destroy(Organization $org, Project $project, Task $task, Comment $comment, DeletesCommentAction $action)
     {
         $action->delete(
-            actor: request()->user,
+            actor: request()->user(),
             comment: $comment,
         );
 

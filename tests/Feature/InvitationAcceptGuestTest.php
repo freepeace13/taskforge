@@ -33,11 +33,7 @@ class InvitationAcceptGuestTest extends TestCase
             'email' => $invite->email,
         ]);
 
-        $this->getJson($url)
-            ->assertOk()
-            ->assertJson([
-                'message' => 'Invitation accepted.',
-            ]);
+        $this->getJson($url)->assertNoContent();
 
         $this->assertAuthenticatedAs($user);
         $this->assertDatabaseHas('organization_user', [
@@ -63,7 +59,7 @@ class InvitationAcceptGuestTest extends TestCase
             'email' => $invite->email,
         ]);
 
-        $this->getJson($url)->assertOk();
+        $this->getJson($url)->assertNoContent();
 
         $createdUser = User::query()->where('email', 'new.person@example.com')->first();
 
@@ -110,7 +106,7 @@ class InvitationAcceptGuestTest extends TestCase
         ]);
 
         $this->getJson($url)
-            ->assertUnprocessable()
+            ->assertForbidden()
             ->assertJson([
                 'message' => 'This invitation has expired.',
             ]);
@@ -134,7 +130,7 @@ class InvitationAcceptGuestTest extends TestCase
         ]);
 
         $this->getJson($url)
-            ->assertUnprocessable()
+            ->assertForbidden()
             ->assertJson([
                 'message' => 'This invitation has already been accepted.',
             ]);

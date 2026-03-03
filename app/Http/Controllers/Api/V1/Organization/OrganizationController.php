@@ -45,11 +45,11 @@ class OrganizationController extends Controller
         return new OrganizationResource($organization);
     }
 
-    public function show(Organization $organization)
+    public function show(Organization $org)
     {
-        $this->authorize('view', $organization);
+        $this->authorize('view', $org);
 
-        return new OrganizationResource($organization);
+        return new OrganizationResource($org);
     }
 
     public function update(UpdateOrganizationRequest $request, UpdatesOrganizationAction $action)

@@ -17,9 +17,9 @@ class CreateProjectAction implements CreatesProjectContract
     {
         $this->authorizeForUser($actor, 'create', [Project::class, $organization]);
 
-        $project = $organization->project()->create([
+        $project = $organization->projects()->create([
             'name' => $data->name,
-            'description' => $data->description
+            'description' => $data->description,
         ]);
 
         return $project;

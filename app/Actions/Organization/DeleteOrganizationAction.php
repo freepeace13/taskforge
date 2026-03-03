@@ -3,8 +3,8 @@
 namespace App\Actions\Organization;
 
 use App\Contracts\Actions\Organization\DeletesOrganizationAction as DeletesOrganizationContract;
-use App\Models\User;
 use App\Models\Organization;
+use App\Models\User;
 use App\Support\AuthorizesActions;
 
 class DeleteOrganizationAction implements DeletesOrganizationContract
