@@ -8,6 +8,7 @@ use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,5 +27,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::policy(Project::class, \App\Policies\ProjectPolicy::class);
         Gate::policy(Task::class, \App\Policies\TaskPolicy::class);
         Gate::policy(Comment::class, \App\Policies\CommentPolicy::class);
+
+        Gate::define('viewApiDocs', function (?User $user = null): bool {
+            return true;
+        });
     }
 }
