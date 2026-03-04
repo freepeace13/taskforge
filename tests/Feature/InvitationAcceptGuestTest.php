@@ -85,7 +85,12 @@ class InvitationAcceptGuestTest extends TestCase
             'expires_at' => now()->addDay(),
         ]);
 
-        $this->getJson('/invitations/'.$invite->token.'/accept?email='.$invite->email)
+        $url = route('invitations.accept', [
+            'token' => $invite->token,
+            'email' => $invite->email,
+        ]);
+
+        $this->getJson($url)
             ->assertForbidden();
     }
 

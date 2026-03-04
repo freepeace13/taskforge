@@ -22,7 +22,10 @@ class OrganizationMemberApiTest extends TestCase
 
         Sanctum::actingAs($owner);
 
-        $this->patchJson('/api/v1/orgs/'.$organization->slug.'/members/'.$member->id, [
+        $this->patchJson(route('api.v1.orgs.members.update', [
+            'org' => $organization->slug,
+            'user' => $member->id,
+        ]), [
             'role' => Role::Admin->value,
         ])->assertOk();
 
@@ -32,7 +35,10 @@ class OrganizationMemberApiTest extends TestCase
             'role' => Role::Admin->value,
         ]);
 
-        $this->deleteJson('/api/v1/orgs/'.$organization->slug.'/members/'.$member->id)
+        $this->deleteJson(route('api.v1.orgs.members.destroy', [
+            'org' => $organization->slug,
+            'user' => $member->id,
+        ]))
             ->assertNoContent();
 
         $this->assertDatabaseMissing('organization_user', [
@@ -49,11 +55,17 @@ class OrganizationMemberApiTest extends TestCase
 
         Sanctum::actingAs($actor);
 
-        $this->patchJson('/api/v1/orgs/'.$organization->slug.'/members/'.$target->id, [
+        $this->patchJson(route('api.v1.orgs.members.update', [
+            'org' => $organization->slug,
+            'user' => $target->id,
+        ]), [
             'role' => Role::Admin->value,
         ])->assertForbidden();
 
-        $this->deleteJson('/api/v1/orgs/'.$organization->slug.'/members/'.$target->id)
+        $this->deleteJson(route('api.v1.orgs.members.destroy', [
+            'org' => $organization->slug,
+            'user' => $target->id,
+        ]))
             ->assertForbidden();
     }
 
@@ -72,11 +84,17 @@ class OrganizationMemberApiTest extends TestCase
 
         Sanctum::actingAs($admin);
 
-        $this->patchJson('/api/v1/orgs/'.$organization->slug.'/members/'.$owner->id, [
+        $this->patchJson(route('api.v1.orgs.members.update', [
+            'org' => $organization->slug,
+            'user' => $owner->id,
+        ]), [
             'role' => Role::Member->value,
         ])->assertUnprocessable();
 
-        $this->deleteJson('/api/v1/orgs/'.$organization->slug.'/members/'.$owner->id)
+        $this->deleteJson(route('api.v1.orgs.members.destroy', [
+            'org' => $organization->slug,
+            'user' => $owner->id,
+        ]))
             ->assertUnprocessable();
     }
 

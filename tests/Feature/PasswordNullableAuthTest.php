@@ -17,7 +17,7 @@ class PasswordNullableAuthTest extends TestCase
             'password' => null,
         ]);
 
-        $this->postJson('/api/v1/login', [
+        $this->postJson(route('api.v1.login'), [
             'email' => $user->email,
             'password' => 'any-password',
         ])->assertUnprocessable()

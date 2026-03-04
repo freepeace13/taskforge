@@ -19,7 +19,9 @@ class OrganizationInvitationApiTest extends TestCase
         [$organization, $owner] = $this->createOrganizationWithMember();
         Sanctum::actingAs($owner);
 
-        $this->postJson('/api/v1/orgs/'.$organization->slug.'/invitations', [
+        $this->postJson(route('api.v1.orgs.invitations.store', [
+            'org' => $organization->slug,
+        ]), [
             'email' => 'invitee@example.com',
             'role' => Role::Member->value,
         ])->assertCreated()
@@ -31,7 +33,9 @@ class OrganizationInvitationApiTest extends TestCase
         [$organization, $member] = $this->createOrganizationWithMember(Role::Member);
         Sanctum::actingAs($member);
 
-        $this->postJson('/api/v1/orgs/'.$organization->slug.'/invitations', [
+        $this->postJson(route('api.v1.orgs.invitations.store', [
+            'org' => $organization->slug,
+        ]), [
             'email' => 'invitee@example.com',
             'role' => Role::Member->value,
         ])->assertForbidden();
@@ -50,7 +54,9 @@ class OrganizationInvitationApiTest extends TestCase
             'expires_at' => now()->addDay(),
         ]);
 
-        $this->postJson('/api/v1/orgs/'.$organization->slug.'/invitations', [
+        $this->postJson(route('api.v1.orgs.invitations.store', [
+            'org' => $organization->slug,
+        ]), [
             'email' => 'duplicate@example.com',
             'role' => Role::Member->value,
         ])->assertUnprocessable();
@@ -63,7 +69,9 @@ class OrganizationInvitationApiTest extends TestCase
         $organization->members()->attach($member->id, ['role' => Role::Member->value]);
         Sanctum::actingAs($owner);
 
-        $this->postJson('/api/v1/orgs/'.$organization->slug.'/invitations', [
+        $this->postJson(route('api.v1.orgs.invitations.store', [
+            'org' => $organization->slug,
+        ]), [
             'email' => 'already-member@example.com',
             'role' => Role::Member->value,
         ])->assertUnprocessable();
@@ -99,7 +107,10 @@ class OrganizationInvitationApiTest extends TestCase
             'expires_at' => now()->subDay(),
         ]);
 
-        $this->getJson('/api/v1/orgs/'.$organization->slug.'/invitations?status=pending')
+        $this->getJson(route('api.v1.orgs.invitations.index', [
+            'org' => $organization->slug,
+            'status' => 'pending',
+        ]))
             ->assertOk()
             ->assertJsonFragment(['email' => 'pending@example.com'])
             ->assertJsonMissing(['email' => 'accepted@example.com'])
@@ -121,7 +132,10 @@ class OrganizationInvitationApiTest extends TestCase
 
         $url = $invite->createTemporarySignedRoute();
 
-        $this->deleteJson('/api/v1/orgs/'.$organization->slug.'/invitations/'.$invite->id)
+        $this->deleteJson(route('api.v1.orgs.invitations.destroy', [
+            'org' => $organization->slug,
+            'invite' => $invite->id,
+        ]))
             ->assertNoContent();
 
         $this->getJson($url)->assertNotFound();

@@ -14,7 +14,7 @@ class AuthApiTest extends TestCase
 
     public function test_register_creates_user_and_returns_token(): void
     {
-        $response = $this->postJson('/api/v1/register', [
+        $response = $this->postJson(route('api.v1.register'), [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -32,7 +32,7 @@ class AuthApiTest extends TestCase
     public function test_register_validation_errors(): void
     {
         // Missing fields
-        $this->postJson('/api/v1/register', [])
+        $this->postJson(route('api.v1.register'), [])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['name', 'email', 'password']);
 
@@ -41,7 +41,7 @@ class AuthApiTest extends TestCase
             'email' => 'dup@example.com',
         ]);
 
-        $this->postJson('/api/v1/register', [
+        $this->postJson(route('api.v1.register'), [
             'name' => 'Dup',
             'email' => 'dup@example.com',
             'password' => 'password123',
@@ -50,7 +50,7 @@ class AuthApiTest extends TestCase
             ->assertJsonValidationErrors(['email']);
 
         // Weak password (too short)
-        $this->postJson('/api/v1/register', [
+        $this->postJson(route('api.v1.register'), [
             'name' => 'Short',
             'email' => 'short@example.com',
             'password' => 'short',
@@ -66,7 +66,7 @@ class AuthApiTest extends TestCase
             'password' => Hash::make('secret123'),
         ]);
 
-        $response = $this->postJson('/api/v1/login', [
+        $response = $this->postJson(route('api.v1.login'), [
             'email' => $user->email,
             'password' => 'secret123',
         ]);
@@ -83,7 +83,7 @@ class AuthApiTest extends TestCase
         ]);
 
         // Unknown email
-        $this->postJson('/api/v1/login', [
+        $this->postJson(route('api.v1.login'), [
             'email' => 'unknown@example.com',
             'password' => 'secret123',
         ])->assertUnprocessable()
@@ -92,7 +92,7 @@ class AuthApiTest extends TestCase
             ]);
 
         // Wrong password
-        $this->postJson('/api/v1/login', [
+        $this->postJson(route('api.v1.login'), [
             'email' => $user->email,
             'password' => 'wrong-password',
         ])->assertUnprocessable()
@@ -103,11 +103,11 @@ class AuthApiTest extends TestCase
 
     public function test_login_validation_errors(): void
     {
-        $this->postJson('/api/v1/login', [])
+        $this->postJson(route('api.v1.login'), [])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['email', 'password']);
 
-        $this->postJson('/api/v1/login', [
+        $this->postJson(route('api.v1.login'), [
             'email' => 'not-an-email',
             'password' => 'password',
         ])->assertUnprocessable()

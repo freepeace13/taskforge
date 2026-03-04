@@ -24,22 +24,40 @@ class CommentApiTest extends TestCase
 
         $comment = Comment::factory()->for($task)->for($user)->create();
 
-        $this->getJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks/'.$task->id.'/comments')
+        $this->getJson(route('api.v1.orgs.projects.tasks.comments.index', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+            'task' => $task->id,
+        ]))
             ->assertOk()
             ->assertJsonFragment(['id' => $comment->id]);
 
-        $createResponse = $this->postJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks/'.$task->id.'/comments', [
+        $createResponse = $this->postJson(route('api.v1.orgs.projects.tasks.comments.store', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+            'task' => $task->id,
+        ]), [
             'body' => 'New comment',
         ])->assertCreated();
 
         $createdId = $createResponse->json('id');
 
-        $this->patchJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks/'.$task->id.'/comments/'.$createdId, [
+        $this->patchJson(route('api.v1.orgs.projects.tasks.comments.update', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+            'task' => $task->id,
+            'comment' => $createdId,
+        ]), [
             'body' => 'Updated comment',
         ])->assertOk()
             ->assertJsonFragment(['body' => 'Updated comment']);
 
-        $this->deleteJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks/'.$task->id.'/comments/'.$createdId)
+        $this->deleteJson(route('api.v1.orgs.projects.tasks.comments.destroy', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+            'task' => $task->id,
+            'comment' => $createdId,
+        ]))
             ->assertNoContent();
 
         $this->assertSoftDeleted('comments', [

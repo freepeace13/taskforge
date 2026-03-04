@@ -26,7 +26,7 @@ class OrganizationApiTest extends TestCase
 
         Sanctum::actingAs($user);
 
-        $response = $this->getJson('/api/v1/orgs');
+        $response = $this->getJson(route('api.v1.orgs.index'));
 
         $response->assertOk()
             ->assertJsonPath('data.0.id', $ownedOrg->id)
@@ -39,7 +39,7 @@ class OrganizationApiTest extends TestCase
 
         Sanctum::actingAs($user);
 
-        $response = $this->postJson('/api/v1/orgs', [
+        $response = $this->postJson(route('api.v1.orgs.store'), [
             'name' => 'My Org',
         ]);
 
@@ -60,11 +60,11 @@ class OrganizationApiTest extends TestCase
         // Owner can view and delete
         Sanctum::actingAs($owner);
 
-        $this->getJson('/api/v1/orgs/'.$organization->slug)
+        $this->getJson(route('api.v1.orgs.show', $organization))
             ->assertOk()
             ->assertJsonFragment(['id' => $organization->id]);
 
-        $this->deleteJson('/api/v1/orgs/'.$organization->slug)
+        $this->deleteJson(route('api.v1.orgs.destroy', $organization))
             ->assertNoContent();
 
         $this->assertDatabaseMissing('organizations', [
@@ -74,7 +74,7 @@ class OrganizationApiTest extends TestCase
         // Non-member cannot view
         Sanctum::actingAs($nonMember);
 
-        $this->getJson('/api/v1/orgs/'.$organization->slug)
+        $this->getJson(route('api.v1.orgs.show', $organization))
             ->assertNotFound();
     }
 }

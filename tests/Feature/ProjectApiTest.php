@@ -21,27 +21,40 @@ class ProjectApiTest extends TestCase
 
         $project = Project::factory()->for($organization)->create();
 
-        $this->getJson('/api/v1/orgs/'.$organization->slug.'/projects')
+        $this->getJson(route('api.v1.orgs.projects.index', [
+            'org' => $organization->slug,
+        ]))
             ->assertOk()
             ->assertJsonFragment(['id' => $project->id]);
 
-        $createResponse = $this->postJson('/api/v1/orgs/'.$organization->slug.'/projects', [
+        $createResponse = $this->postJson(route('api.v1.orgs.projects.store', [
+            'org' => $organization->slug,
+        ]), [
             'name' => 'New Project',
             'description' => 'Description',
         ])->assertCreated();
 
         $createdId = $createResponse->json('id');
 
-        $this->getJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$createdId)
+        $this->getJson(route('api.v1.orgs.projects.show', [
+            'org' => $organization->slug,
+            'project' => $createdId,
+        ]))
             ->assertOk()
             ->assertJsonFragment(['name' => 'New Project']);
 
-        $this->patchJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$createdId, [
+        $this->patchJson(route('api.v1.orgs.projects.update', [
+            'org' => $organization->slug,
+            'project' => $createdId,
+        ]), [
             'name' => 'Updated Project',
         ])->assertOk()
             ->assertJsonFragment(['name' => 'Updated Project']);
 
-        $this->deleteJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$createdId)
+        $this->deleteJson(route('api.v1.orgs.projects.destroy', [
+            'org' => $organization->slug,
+            'project' => $createdId,
+        ]))
             ->assertNoContent();
 
         $this->assertSoftDeleted('projects', [
@@ -58,15 +71,24 @@ class ProjectApiTest extends TestCase
             'archived_at' => null,
         ]);
 
-        $this->postJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/archive')
+        $this->postJson(route('api.v1.orgs.projects.archive', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+        ]))
             ->assertOk()
             ->assertJsonFragment(['id' => $project->id]);
 
-        $this->getJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/archived')
+        $this->getJson(route('api.v1.orgs.projects.archived.index', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+        ]))
             ->assertOk()
             ->assertJsonFragment(['id' => $project->id]);
 
-        $this->postJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/restore')
+        $this->postJson(route('api.v1.orgs.projects.restore', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+        ]))
             ->assertOk()
             ->assertJsonFragment(['id' => $project->id]);
     }

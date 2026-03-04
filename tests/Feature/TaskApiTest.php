@@ -32,11 +32,17 @@ class TaskApiTest extends TestCase
 
         $task = Task::factory()->for($project)->create();
 
-        $this->getJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks')
+        $this->getJson(route('api.v1.orgs.projects.tasks.index', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+        ]))
             ->assertOk()
             ->assertJsonFragment(['id' => $task->id]);
 
-        $createResponse = $this->postJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks', [
+        $createResponse = $this->postJson(route('api.v1.orgs.projects.tasks.store', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+        ]), [
             'title' => 'New Task',
             'description' => 'Desc',
             'priority' => 'high',
@@ -44,33 +50,61 @@ class TaskApiTest extends TestCase
 
         $createdId = $createResponse->json('id');
 
-        $this->getJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks/'.$createdId)
+        $this->getJson(route('api.v1.orgs.projects.tasks.show', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+            'task' => $createdId,
+        ]))
             ->assertOk()
             ->assertJsonFragment(['title' => 'New Task']);
 
-        $this->patchJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks/'.$createdId, [
+        $this->patchJson(route('api.v1.orgs.projects.tasks.update', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+            'task' => $createdId,
+        ]), [
             'title' => 'Updated Task',
         ])->assertOk()
             ->assertJsonFragment(['title' => 'Updated Task']);
 
-        $this->postJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks/'.$createdId.'/assign', [
+        $this->postJson(route('api.v1.orgs.projects.tasks.assign', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+            'task' => $createdId,
+        ]), [
             'user_id' => $assignee->id,
         ])->assertOk()
             ->assertJsonFragment(['assigned_to_user_id' => $assignee->id]);
 
-        $this->postJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks/'.$createdId.'/complete')
+        $this->postJson(route('api.v1.orgs.projects.tasks.complete', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+            'task' => $createdId,
+        ]))
             ->assertOk()
             ->assertJsonFragment(['status' => 'done']);
 
-        $this->postJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks/'.$createdId.'/reopen')
+        $this->postJson(route('api.v1.orgs.projects.tasks.reopen', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+            'task' => $createdId,
+        ]))
             ->assertOk()
             ->assertJsonFragment(['status' => 'todo']);
 
-        $this->postJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks/'.$createdId.'/unassign')
+        $this->postJson(route('api.v1.orgs.projects.tasks.unassign', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+            'task' => $createdId,
+        ]))
             ->assertOk()
             ->assertJsonFragment(['assigned_to_user_id' => null]);
 
-        $this->deleteJson('/api/v1/orgs/'.$organization->slug.'/projects/'.$project->id.'/tasks/'.$createdId)
+        $this->deleteJson(route('api.v1.orgs.projects.tasks.destroy', [
+            'org' => $organization->slug,
+            'project' => $project->id,
+            'task' => $createdId,
+        ]))
             ->assertNoContent();
 
         $this->assertSoftDeleted('tasks', [

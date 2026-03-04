@@ -17,7 +17,7 @@ class CurrentUserApiTest extends TestCase
 
         Sanctum::actingAs($user);
 
-        $response = $this->getJson('/api/v1/me');
+        $response = $this->getJson(route('api.v1.me'));
 
         $response->assertOk()
             ->assertJsonFragment([
@@ -28,7 +28,7 @@ class CurrentUserApiTest extends TestCase
 
     public function test_me_requires_authentication(): void
     {
-        $this->getJson('/api/v1/me')
+        $this->getJson(route('api.v1.me'))
             ->assertUnauthorized();
     }
 }
