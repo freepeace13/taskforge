@@ -10,7 +10,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Organization\StoreOrganizationRequest;
 use App\Http\Requests\Organization\UpdateOrganizationRequest;
 use App\Http\Resources\OrganizationResource;
-use App\Models\Organization;
 use App\Queries\Organization\ListOrganizationsQuery;
 use App\Queries\Organization\ListOrganizationsQueryHandler;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -45,8 +44,10 @@ class OrganizationController extends Controller
         return new OrganizationResource($organization);
     }
 
-    public function show(Organization $org)
+    public function show()
     {
+        $org = tenant()->organization;
+
         $this->authorize('view', $org);
 
         return new OrganizationResource($org);
@@ -68,11 +69,11 @@ class OrganizationController extends Controller
         return new OrganizationResource($organization);
     }
 
-    public function destroy(Organization $org, DeletesOrganizationAction $action)
+    public function destroy(DeletesOrganizationAction $action)
     {
-        $user = request()->user();
+        $org = tenant()->organization;
 
-        $action->delete(actor: $user, organization: $org);
+        $action->delete(actor: request()->user(), organization: $org);
 
         return response()->noContent();
     }

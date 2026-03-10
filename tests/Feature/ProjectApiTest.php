@@ -2,22 +2,21 @@
 
 namespace Tests\Feature;
 
-use App\Models\Organization;
+use App\Enums\Role;
 use App\Models\Project;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\InteractsWithTenant;
 use Tests\TestCase;
 
 class ProjectApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use InteractsWithTenant, RefreshDatabase;
 
     public function test_can_list_create_show_update_and_delete_projects(): void
     {
-        [$organization, $user] = $this->createOrganizationAndOwner();
+        [$organization, $user] = $this->createOrganizationWithMember(Role::Owner);
 
-        Sanctum::actingAs($user);
+        $this->actingAsInOrganization($user, $organization, Role::Owner);
 
         $project = Project::factory()->for($organization)->create();
 
@@ -64,8 +63,9 @@ class ProjectApiTest extends TestCase
 
     public function test_can_archive_and_restore_projects_and_list_archived(): void
     {
-        [$organization, $user] = $this->createOrganizationAndOwner();
-        Sanctum::actingAs($user);
+        [$organization, $user] = $this->createOrganizationWithMember(Role::Owner);
+
+        $this->actingAsInOrganization($user, $organization, Role::Owner);
 
         $project = Project::factory()->for($organization)->create([
             'archived_at' => null,
@@ -91,15 +91,5 @@ class ProjectApiTest extends TestCase
         ]))
             ->assertOk()
             ->assertJsonFragment(['id' => $project->id]);
-    }
-
-    private function createOrganizationAndOwner(): array
-    {
-        $organization = Organization::factory()->create();
-        $owner = User::query()->findOrFail($organization->owner_id);
-
-        $organization->members()->attach($owner->id, ['role' => 'owner']);
-
-        return [$organization, $owner];
     }
 }

@@ -7,17 +7,18 @@ use App\Models\Comment;
 use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\InteractsWithTenant;
 use Tests\TestCase;
 
 class CommentApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use InteractsWithTenant, RefreshDatabase;
 
     public function test_can_list_create_update_and_delete_comments_for_task(): void
     {
         [$organization, $user] = $this->createOrganizationWithMember(Role::Owner);
-        Sanctum::actingAs($user);
+
+        $this->actingAsInOrganization($user, $organization, Role::Owner);
 
         $project = Project::factory()->for($organization)->create();
         $task = Task::factory()->for($project)->create();

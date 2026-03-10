@@ -2,14 +2,19 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class InertiaKanbanTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_inertia_kanban_route_renders_tasks_index_component(): void
     {
-        $response = $this->get(route('tasks.index'));
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get(route('tasks.index'));
 
         $response->assertOk();
 

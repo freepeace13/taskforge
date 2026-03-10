@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class CurrentUserApiTest extends TestCase
@@ -13,11 +12,13 @@ class CurrentUserApiTest extends TestCase
 
     public function test_me_returns_authenticated_user_resource(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'auth_id' => 'auth-123',
+        ]);
 
-        Sanctum::actingAs($user);
-
-        $response = $this->getJson(route('api.v1.me'));
+        $response = $this->getJson(route('api.v1.me'), [
+            'Authorization' => 'Bearer test:auth-123',
+        ]);
 
         $response->assertOk()
             ->assertJsonFragment([

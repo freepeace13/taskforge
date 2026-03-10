@@ -8,8 +8,11 @@ services:
         image: 'sail-8.5/app'
         extra_hosts:
             - 'host.docker.internal:host-gateway'
+            # Resolve *.techysavvy.test to host so container can reach Traefik (port 443)
+            - 'auth.techysavvy.test:host-gateway'
+            - 'taskforge.techysavvy.test:host-gateway'
         ports:
-            - '${APP_PORT:-80}:80'
+            # - '${APP_PORT:-80}:80' # Traefik handles the app routing, otherwise the app will be exposed on the host port.
             - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
         environment:
             WWWUSER: '${WWWUSER}'
@@ -17,10 +20,20 @@ services:
             XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
             XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
+            CURL_CA_BUNDLE: /etc/ssl/certs/mkcert-rootCA.pem
         volumes:
             - '.:/var/www/html'
+            - '../infra/traefik/certs/rootCA.pem:/etc/ssl/certs/mkcert-rootCA.pem:ro'
         networks:
             - sail
+            - devnet
+        labels:
+            - "traefik.enable=true"
+            - "traefik.docker.network=devnet"
+            - "traefik.http.routers.taskforge.rule=Host(`taskforge.techysavvy.test`)"
+            - "traefik.http.routers.taskforge.entrypoints=websecure"
+            - "traefik.http.routers.taskforge.tls=true"
+            - "traefik.http.services.taskforge.loadbalancer.server.port=80"
         depends_on:
             - mysql
             - redis
@@ -67,6 +80,8 @@ services:
 networks:
     sail:
         driver: bridge
+    devnet:
+        external: true
 volumes:
     sail-mysql:
         driver: local

@@ -3,23 +3,23 @@
 namespace Tests\Feature;
 
 use App\Enums\Role;
-use App\Models\Organization;
 use App\Models\OrganizationMember;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\InteractsWithTenant;
 use Tests\TestCase;
 
 class TaskApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use InteractsWithTenant, RefreshDatabase;
 
     public function test_can_crud_tasks_and_change_state_and_assignee(): void
     {
-        [$organization, $user] = $this->createOrganizationAndOwner();
-        Sanctum::actingAs($user);
+        [$organization, $user] = $this->createOrganizationWithMember(Role::Owner);
+
+        $this->actingAsInOrganization($user, $organization, Role::Owner);
 
         $project = Project::factory()->for($organization)->create();
         $assignee = User::factory()->create();
@@ -110,15 +110,5 @@ class TaskApiTest extends TestCase
         $this->assertSoftDeleted('tasks', [
             'id' => $createdId,
         ]);
-    }
-
-    private function createOrganizationAndOwner(): array
-    {
-        $organization = Organization::factory()->create();
-        $owner = User::query()->findOrFail($organization->owner_id);
-
-        $organization->members()->attach($owner->id, ['role' => Role::Owner->value]);
-
-        return [$organization, $owner];
     }
 }

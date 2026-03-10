@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { router, usePage } from '@inertiajs/react';
 import Button from '@/Components/Button';
 import Modal from '@/Components/Modal';
 
@@ -208,10 +209,12 @@ function AppSidebar() {
                             className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-3 py-2 text-left text-sm font-semibold shadow-sm hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800"
                         >
                             <div className="flex items-center justify-between">
-                                <span className="truncate">Sowidu Labs</span>
+                                <span className="truncate">My workspace</span>
                                 <span className="text-gray-400">⌄</span>
                             </div>
-                            <div className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">kin@company.com</div>
+                            <div className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">
+                                {(usePage().props.auth as { user?: { email: string } })?.user?.email ?? '-'}
+                            </div>
                         </button>
                     </div>
 
@@ -262,9 +265,20 @@ function AppSidebar() {
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-2xl bg-gray-200 dark:bg-gray-800" />
                             <div className="min-w-0 flex-1">
-                                <div className="truncate text-sm font-semibold">Kin Basco</div>
+                                <div className="truncate text-sm font-semibold">
+                                    {(usePage().props.auth as { user?: { name: string } })?.user?.name ?? '-'}
+                                </div>
                                 <div className="truncate text-xs text-gray-500 dark:text-gray-400">Owner</div>
                             </div>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => router.post(route('logout'))}
+                                aria-label="Log out"
+                                className="hidden lg:inline-flex"
+                            >
+                                Log out
+                            </Button>
                             <Button
                                 variant="secondary"
                                 size="sm"

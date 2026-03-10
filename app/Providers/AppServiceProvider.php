@@ -44,6 +44,7 @@ use App\Contracts\Actions\Task\CreatesTaskAction as CreatesTaskContract;
 use App\Contracts\Actions\Task\DeletesTaskAction as DeletesTaskContract;
 use App\Contracts\Actions\Task\ReopensTaskAction as ReopensTaskContract;
 use App\Contracts\Actions\Task\UpdatesTaskAction as UpdatesTaskContract;
+use App\Data\TenantContext;
 use App\Models\Comment;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
@@ -51,6 +52,7 @@ use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -92,34 +94,59 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        URL::forceHttps();
         JsonResource::withoutWrapping();
 
         Route::bind('project', function ($project, $route) {
+            $org = $route->parameter('org')
+                ?? (app()->bound(TenantContext::class) ? app(TenantContext::class)->organization : null);
+
+            $orgConstraint = $org instanceof Organization
+                ? fn ($q) => $q->whereKey($org->id)
+                : fn ($q) => $q->where('slug', $org);
+
             return Project::query()
                 ->whereKey($project)
-                ->whereHas('organization', fn ($q) => $q->whereSlug($route->parameter('org')))
+                ->whereHas('organization', $orgConstraint)
                 ->firstOrFail();
         });
 
         Route::bind('invite', function ($invite, $route) {
+            $org = $route->parameter('org')
+                ?? (app()->bound(TenantContext::class) ? app(TenantContext::class)->organization : null);
+
+            $orgConstraint = $org instanceof Organization
+                ? fn ($q) => $q->whereKey($org->id)
+                : fn ($q) => $q->where('slug', $org);
+
             return OrganizationInvite::query()
                 ->whereKey($invite)
-                ->whereHas('organization', fn ($q) => $q->whereSlug($route->parameter('org')))
+                ->whereHas('organization', $orgConstraint)
                 ->firstOrFail();
         });
 
         Route::bind('task', function ($task, $route) {
+            $org = $route->parameter('org')
+                ?? (app()->bound(TenantContext::class) ? app(TenantContext::class)->organization : null);
+
+            $orgConstraint = $org instanceof Organization
+                ? fn ($q) => $q->whereKey($org->id)
+                : fn ($q) => $q->where('slug', $org);
+
+            $projectParam = $route->parameter('project');
+            $projectId = $projectParam instanceof Project ? $projectParam->id : $projectParam;
+
             return Task::query()
                 ->whereKey($task)
-                ->whereHas('project', function ($q) use ($route) {
-                    $q->whereHas('organization', fn ($q) => $q->whereSlug($route->parameter('org')))
-                        ->whereKey($route->parameter('project'));
+                ->whereHas('project', function ($q) use ($orgConstraint, $projectId) {
+                    $q->whereKey($projectId)->whereHas('organization', $orgConstraint);
                 })
                 ->firstOrFail();
         });
 
         Route::bind('comment', function ($comment, $route) {
-            $org = $route->parameter('org');
+            $org = $route->parameter('org')
+                ?? (app()->bound(TenantContext::class) ? app(TenantContext::class)->organization : null);
             $project = $route->parameter('project');
             $task = $route->parameter('task');
 

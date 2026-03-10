@@ -9,7 +9,6 @@ use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Organization\StoreInvitationRequest;
 use App\Http\Resources\InvitationResource;
-use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Queries\Organization\ListOrganizationInvitationsQuery;
 use App\Queries\Organization\ListOrganizationInvitationsQueryHandler;
@@ -20,8 +19,10 @@ class InvitationController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Organization $org, ListOrganizationInvitationsQueryHandler $handler)
+    public function index(ListOrganizationInvitationsQueryHandler $handler)
     {
+        $org = tenant()->organization;
+
         $this->authorize('viewAny', [OrganizationInvite::class, $org]);
 
         $invites = $handler->handle(new ListOrganizationInvitationsQuery(
@@ -53,7 +54,7 @@ class InvitationController extends Controller
             ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function destroy(Organization $org, OrganizationInvite $invitation, CancelsInvitationAction $action)
+    public function destroy(OrganizationInvite $invitation, CancelsInvitationAction $action)
     {
         $user = request()->user();
 

@@ -1,8 +1,6 @@
 <?php
 
 use App\Http\Controllers\Api\V1\ActivityLogController;
-use App\Http\Controllers\Api\V1\Auth\LoginController;
-use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Comment\CommentController;
 use App\Http\Controllers\Api\V1\CurrentUserController;
 use App\Http\Controllers\Api\V1\Organization\InvitationController;
@@ -17,10 +15,7 @@ use App\Http\Middleware\TenancyMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-    Route::post('register', RegisterController::class)->name('api.v1.register');
-    Route::post('login', LoginController::class)->name('api.v1.login');
-
-    Route::middleware(['auth:sanctum', TenancyMiddleware::class])->group(function () {
+    Route::middleware(['techysavvy', TenancyMiddleware::class])->group(function () {
         Route::get('me', CurrentUserController::class)->name('api.v1.me');
 
         Route::get('orgs', [OrganizationController::class, 'index'])->name('api.v1.orgs.index');

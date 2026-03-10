@@ -7,17 +7,18 @@ use App\Models\OrganizationInvite;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
-use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\InteractsWithTenant;
 use Tests\TestCase;
 
 class OrganizationInvitationApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use InteractsWithTenant, RefreshDatabase;
 
     public function test_owner_can_create_invitation(): void
     {
-        [$organization, $owner] = $this->createOrganizationWithMember();
-        Sanctum::actingAs($owner);
+        [$organization, $owner] = $this->createOrganizationWithMember(Role::Owner);
+
+        $this->actingAsInOrganization($owner, $organization, Role::Owner);
 
         $this->postJson(route('api.v1.orgs.invitations.store', [
             'org' => $organization->slug,
@@ -31,7 +32,7 @@ class OrganizationInvitationApiTest extends TestCase
     public function test_member_cannot_create_invitation(): void
     {
         [$organization, $member] = $this->createOrganizationWithMember(Role::Member);
-        Sanctum::actingAs($member);
+        $this->actingAsInOrganization($member, $organization, Role::Member);
 
         $this->postJson(route('api.v1.orgs.invitations.store', [
             'org' => $organization->slug,
@@ -44,7 +45,7 @@ class OrganizationInvitationApiTest extends TestCase
     public function test_duplicate_active_invitation_is_blocked(): void
     {
         [$organization, $owner] = $this->createOrganizationWithMember();
-        Sanctum::actingAs($owner);
+        $this->actingAsInOrganization($owner, $organization, Role::Owner);
 
         OrganizationInvite::query()->create([
             'organization_id' => $organization->id,
@@ -67,7 +68,7 @@ class OrganizationInvitationApiTest extends TestCase
         [$organization, $owner] = $this->createOrganizationWithMember();
         $member = User::factory()->create(['email' => 'already-member@example.com']);
         $organization->members()->attach($member->id, ['role' => Role::Member->value]);
-        Sanctum::actingAs($owner);
+        $this->actingAsInOrganization($owner, $organization, Role::Owner);
 
         $this->postJson(route('api.v1.orgs.invitations.store', [
             'org' => $organization->slug,
@@ -80,7 +81,7 @@ class OrganizationInvitationApiTest extends TestCase
     public function test_invitation_listing_filters_by_status(): void
     {
         [$organization, $owner] = $this->createOrganizationWithMember();
-        Sanctum::actingAs($owner);
+        $this->actingAsInOrganization($owner, $organization, Role::Owner);
 
         OrganizationInvite::query()->create([
             'organization_id' => $organization->id,
@@ -120,7 +121,7 @@ class OrganizationInvitationApiTest extends TestCase
     public function test_revoke_invitation_prevents_acceptance(): void
     {
         [$organization, $owner] = $this->createOrganizationWithMember(Role::Owner);
-        Sanctum::actingAs($owner);
+        $this->actingAsInOrganization($owner, $organization, Role::Owner);
 
         $invite = OrganizationInvite::query()->create([
             'organization_id' => $organization->id,

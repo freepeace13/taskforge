@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'techysavvy' => [
+        'client_id' => env('OAUTH_CLIENT_ID'),
+        'client_secret' => env('OAUTH_CLIENT_SECRET'),
+        'redirect' => env('OAUTH_REDIRECT_URI', env('APP_URL').'/auth/callback'),
+        'authorize_url' => env('OAUTH_ISSUER') . '/oauth/authorize',
+        'token_url' => env('OAUTH_ISSUER') . '/oauth/token',
+        'user_url' => (env('OAUTH_USER_URL') ?? env('OAUTH_ISSUER')) . '/api/user',
+        'public_key' => env('OAUTH_PUBLIC_KEY'),
+    ],
 ];

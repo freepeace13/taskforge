@@ -7,9 +7,6 @@ import Table from '@/Components/Table';
 import type { DashboardStats, StatusVariant } from '@/Components/types';
 
 type DashboardProps = PageProps & {
-    user: {
-        name: string;
-    };
     stats: DashboardStats;
 };
 

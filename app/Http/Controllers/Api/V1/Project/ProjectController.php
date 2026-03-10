@@ -10,7 +10,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
-use App\Models\Organization;
 use App\Models\Project;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,8 +18,10 @@ class ProjectController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Organization $org)
+    public function index()
     {
+        $org = tenant()->organization;
+
         $this->authorize('viewAny', [Project::class, $org]);
 
         $projects = $org->projects()
@@ -31,12 +32,12 @@ class ProjectController extends Controller
         return ProjectResource::collection($projects);
     }
 
-    public function store(Organization $org, StoreProjectRequest $request, CreatesProjectAction $action)
+    public function store(StoreProjectRequest $request, CreatesProjectAction $action)
     {
-        $user = $request->user();
+        $org = tenant()->organization;
 
         $project = $action->create(
-            actor: $user,
+            actor: $request->user(),
             organization: $org,
             data: new ProjectData(
                 name: $request->name,
@@ -49,7 +50,7 @@ class ProjectController extends Controller
             ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function show(Organization $org, Project $project)
+    public function show(Project $project)
     {
         $this->authorize('view', $project);
 
@@ -57,7 +58,6 @@ class ProjectController extends Controller
     }
 
     public function update(
-        Organization $org,
         Project $project,
         UpdateProjectRequest $request,
         UpdatesProjectAction $action
@@ -77,7 +77,6 @@ class ProjectController extends Controller
     }
 
     public function destroy(
-        Organization $org,
         Project $project,
         DeletesProjectAction $action
     ) {

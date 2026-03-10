@@ -2,14 +2,19 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class InertiaProjectsTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_inertia_projects_route_renders_projects_index_component(): void
     {
-        $response = $this->get(route('projects.index'));
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get(route('projects.index'));
 
         $response->assertOk();
 

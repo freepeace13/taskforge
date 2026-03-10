@@ -6,7 +6,6 @@ use App\Contracts\Actions\Project\ArchivesProjectAction;
 use App\Contracts\Actions\Project\RestoresProjectAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectResource;
-use App\Models\Organization;
 use App\Models\Project;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -14,8 +13,10 @@ class ArchiveController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Organization $org)
+    public function index()
     {
+        $org = tenant()->organization;
+
         $this->authorize('viewAny', [Project::class, $org]);
 
         $projects = $org->projects()
@@ -27,7 +28,6 @@ class ArchiveController extends Controller
     }
 
     public function archive(
-        Organization $org,
         Project $project,
         ArchivesProjectAction $action
     ) {
@@ -39,7 +39,6 @@ class ArchiveController extends Controller
     }
 
     public function restore(
-        Organization $org,
         Project $project,
         RestoresProjectAction $action
     ) {

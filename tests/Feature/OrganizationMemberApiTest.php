@@ -7,12 +7,12 @@ use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
-use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\InteractsWithTenant;
 use Tests\TestCase;
 
 class OrganizationMemberApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use InteractsWithTenant, RefreshDatabase;
 
     public function test_owner_can_update_member_role_and_remove_member(): void
     {
@@ -20,7 +20,7 @@ class OrganizationMemberApiTest extends TestCase
         $member = User::factory()->create();
         $organization->members()->attach($member->id, ['role' => Role::Member->value]);
 
-        Sanctum::actingAs($owner);
+        $this->actingAsInOrganization($owner, $organization, Role::Owner);
 
         $this->patchJson(route('api.v1.orgs.members.update', [
             'org' => $organization->slug,
@@ -53,7 +53,7 @@ class OrganizationMemberApiTest extends TestCase
         $target = User::factory()->create();
         $organization->members()->attach($target->id, ['role' => Role::Member->value]);
 
-        Sanctum::actingAs($actor);
+        $this->actingAsInOrganization($actor, $organization, Role::Member);
 
         $this->patchJson(route('api.v1.orgs.members.update', [
             'org' => $organization->slug,
@@ -82,7 +82,7 @@ class OrganizationMemberApiTest extends TestCase
         $organization->members()->attach($owner->id, ['role' => Role::Owner->value]);
         $organization->members()->attach($admin->id, ['role' => Role::Admin->value]);
 
-        Sanctum::actingAs($admin);
+        $this->actingAsInOrganization($admin, $organization, Role::Admin);
 
         $this->patchJson(route('api.v1.orgs.members.update', [
             'org' => $organization->slug,

@@ -6,12 +6,12 @@ use App\Enums\Role;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\InteractsWithTenant;
 use Tests\TestCase;
 
 class OrganizationApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use InteractsWithTenant, RefreshDatabase;
 
     public function test_index_lists_only_organizations_user_belongs_to(): void
     {
@@ -24,7 +24,7 @@ class OrganizationApiTest extends TestCase
         $ownedOrg->members()->attach($user->id, ['role' => Role::Owner->value]);
         $this->createOrganizationWithMember(Role::Member); // unrelated org
 
-        Sanctum::actingAs($user);
+        $this->actingAsAuthServer($user);
 
         $response = $this->getJson(route('api.v1.orgs.index'));
 
@@ -37,7 +37,7 @@ class OrganizationApiTest extends TestCase
     {
         $user = User::factory()->create();
 
-        Sanctum::actingAs($user);
+        $this->actingAsAuthServer($user);
 
         $response = $this->postJson(route('api.v1.orgs.store'), [
             'name' => 'My Org',
@@ -58,23 +58,28 @@ class OrganizationApiTest extends TestCase
         $nonMember = User::factory()->create();
 
         // Owner can view and delete
-        Sanctum::actingAs($owner);
+        $this->actingAsInOrganization($owner, $organization, Role::Owner);
 
-        $this->getJson(route('api.v1.orgs.show', $organization))
+        $this->getJson(route('api.v1.orgs.show'))
             ->assertOk()
             ->assertJsonFragment(['id' => $organization->id]);
 
-        $this->deleteJson(route('api.v1.orgs.destroy', $organization))
+        $this->deleteJson(route('api.v1.orgs.destroy'))
             ->assertNoContent();
 
         $this->assertDatabaseMissing('organizations', [
             'id' => $organization->id,
         ]);
 
-        // Non-member cannot view
-        Sanctum::actingAs($nonMember);
+        // Recreate org for non-member test
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($organization->owner_id, ['role' => Role::Owner->value]);
 
-        $this->getJson(route('api.v1.orgs.show', $organization))
+        // Non-member cannot view (TenancyMiddleware will 404 when member not found)
+        $this->actingAsAuthServer($nonMember);
+        $this->withHeaders(['x-tenant-id' => (string) $organization->id]);
+
+        $this->getJson(route('api.v1.orgs.show'))
             ->assertNotFound();
     }
 }

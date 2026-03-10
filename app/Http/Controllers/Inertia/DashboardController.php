@@ -11,9 +11,6 @@ class DashboardController extends Controller
     public function __invoke(Request $request)
     {
         return Inertia::render('Dashboard', [
-            'user' => [
-                'name' => 'Kin Basco',
-            ],
             'stats' => [
                 'projects' => 12,
                 'openTasks' => 48,
