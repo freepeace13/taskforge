@@ -13,6 +13,7 @@ use App\Services\Auth\AuthServerTokenValidator;
 use App\Services\Auth\TechysavvyOAuthProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -59,6 +60,7 @@ class AuthServiceProvider extends ServiceProvider
 
                 return User::firstWhere('auth_id', $authId);
             } catch (\Exception $e) {
+                Log::error('Error validating token: ' . $e->getMessage());
                 return null;
             }
         });

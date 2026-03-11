@@ -26,6 +26,15 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - react (REACT) - v19
 - tailwindcss (TAILWINDCSS) - v4
 
+## Skills Activation
+
+This project has domain-specific skills available. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
+
+- `inertia-react-development` — Develops Inertia.js v2 React client-side applications. Activates when creating React pages, forms, or navigation; using &lt;Link&gt;, &lt;Form&gt;, useForm, or router; working with deferred props, prefetching, or polling; or when user mentions React with Inertia, React pages, React forms, or React navigation.
+- `tailwindcss-development` — Styles applications using Tailwind CSS v4 utilities. Activates when adding styles, restyling components, working with gradients, spacing, layout, flex, grid, responsive design, dark mode, colors, typography, or borders; or when the user mentions CSS, styling, classes, Tailwind, restyle, hero section, cards, buttons, or any visual/UI changes.
+- `react-components-guidelines` — Provides conventions and best practices for React components under resources/js/Components, including folder structure, barrel files, imports, props, state management, styling, and testing. Use when creating, modifying, or reviewing React components in this project.
+- `sso-auth-flow` — Guides work on the SSO authentication client in this Taskforge app that integrates with the external auth server. Use when implementing, debugging, or extending SSO login redirects, callbacks, token handling, tenant-aware auth, or React/Inertia flows that depend on this auth server.
+
 ## Conventions
 
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.

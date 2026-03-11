@@ -94,7 +94,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        URL::forceHttps();
         JsonResource::withoutWrapping();
 
         Route::bind('project', function ($project, $route) {

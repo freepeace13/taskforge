@@ -16,7 +16,7 @@ class OAuthController extends Controller
      */
     public function redirect(): RedirectResponse
     {
-        return Socialite::driver('techysavvy')->stateless()->redirect();
+        return Socialite::driver('techysavvy')->redirect();
     }
 
     /**
@@ -24,7 +24,7 @@ class OAuthController extends Controller
      */
     public function callback(Request $request): RedirectResponse
     {
-        $oauthUser = Socialite::driver('techysavvy')->stateless()->user();
+        $oauthUser = Socialite::driver('techysavvy')->user();
 
         $authId = (string) $oauthUser->getId();
         $user = User::query()->where('auth_id', $authId)->first();

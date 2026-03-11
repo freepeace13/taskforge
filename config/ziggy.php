@@ -14,6 +14,7 @@ return [
         'projects.*',
         'tasks.*',
         'invitations.accept',
+        'logout'
     ],
 
     /*

@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import Button from '@/Components/Button';
 import Modal from '@/Components/Modal';
+import { route } from 'ziggy-js';
 
 type AppLayoutProps = {
     children: ReactNode;
@@ -17,6 +18,7 @@ type LayoutContextValue = {
     isTaskModalOpen: boolean;
     openTaskModal: () => void;
     closeTaskModal: () => void;
+    logout: () => void;
 };
 
 const LayoutContext = createContext<LayoutContextValue | undefined>(undefined);
@@ -72,6 +74,10 @@ function LayoutProvider({ children }: { children: ReactNode }) {
         window.localStorage.setItem('theme', nextIsDark ? 'dark' : 'light');
     };
 
+    const logout = () => {
+        router.post(route('logout'));
+    }
+
     const openSidebar = () => setIsSidebarOpen(true);
     const closeSidebar = () => setIsSidebarOpen(false);
 
@@ -88,6 +94,7 @@ function LayoutProvider({ children }: { children: ReactNode }) {
             isTaskModalOpen,
             openTaskModal,
             closeTaskModal,
+            logout
         }),
         [isDark, isSidebarOpen, isTaskModalOpen],
     );
@@ -96,7 +103,7 @@ function LayoutProvider({ children }: { children: ReactNode }) {
 }
 
 function AppHeader() {
-    const { openSidebar, toggleDarkMode, openTaskModal } = useLayoutContext();
+    const { openSidebar, toggleDarkMode, openTaskModal, logout } = useLayoutContext();
 
     return (
         <>
@@ -165,7 +172,7 @@ function AppHeader() {
 }
 
 function AppSidebar() {
-    const { isSidebarOpen, closeSidebar, toggleDarkMode } = useLayoutContext();
+    const { isSidebarOpen, closeSidebar, toggleDarkMode, logout } = useLayoutContext();
 
     return (
         <>
@@ -273,7 +280,7 @@ function AppSidebar() {
                             <Button
                                 variant="secondary"
                                 size="sm"
-                                onClick={() => router.post(route('logout'))}
+                                onClick={logout}
                                 aria-label="Log out"
                                 className="hidden lg:inline-flex"
                             >

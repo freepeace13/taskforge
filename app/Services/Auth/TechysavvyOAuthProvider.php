@@ -15,11 +15,18 @@ class TechysavvyOAuthProvider extends AbstractProvider
     protected $usesPKCE = true;
 
     /**
+     * The URL of the auth server.
+     *
+     * @var string
+     */
+    protected $serverUrl = 'http://auth.techysavvy.test';
+
+    /**
      * {@inheritdoc}
      */
     protected function getAuthUrl($state): string
     {
-        $baseUrl = config('services.techysavvy.authorize_url');
+        $baseUrl = $this->serverUrl . '/oauth/authorize';
 
         return $this->buildAuthUrlFromBase($baseUrl, $state);
     }
@@ -29,7 +36,7 @@ class TechysavvyOAuthProvider extends AbstractProvider
      */
     protected function getTokenUrl(): string
     {
-        return config('services.techysavvy.token_url');
+        return $this->serverUrl . '/oauth/token';
     }
 
     /**
@@ -37,7 +44,7 @@ class TechysavvyOAuthProvider extends AbstractProvider
      */
     protected function getUserByToken($token): array
     {
-        $userUrl = config('services.techysavvy.user_url');
+        $userUrl = $this->serverUrl . '/api/user';
 
         $response = $this->getHttpClient()->get($userUrl, [
             \GuzzleHttp\RequestOptions::HEADERS => [
