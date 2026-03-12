@@ -7,6 +7,11 @@ use App\Http\Controllers\Inertia\Task\TaskController;
 use App\Http\Controllers\User\AcceptInvitationController;
 use Illuminate\Support\Facades\Route;
 
+Route::view('/', 'pages.home')->name('site.home');
+Route::view('/features', 'pages.features')->name('site.features');
+Route::view('/preview', 'pages.preview')->name('site.preview');
+Route::view('/pricing', 'pages.pricing')->name('site.pricing');
+
 Route::get('login', [OAuthController::class, 'redirect'])
     ->middleware(['guest'])
     ->name('login');
@@ -24,7 +29,6 @@ Route::get('invitations/{token}/accept', AcceptInvitationController::class)
     ->name('invitations.accept');
 
 Route::middleware(['auth'])->group(function () {
-    Route::redirect('/', '/dashboard');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
