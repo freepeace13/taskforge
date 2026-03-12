@@ -36,6 +36,7 @@ return [
     ],
 
     'techysavvy' => [
+        'server_url' => env('OAUTH_SERVER_URL', 'https://auth.techysavvy.me'),
         'client_id' => env('OAUTH_CLIENT_ID'),
         'client_secret' => env('OAUTH_CLIENT_SECRET'),
         'redirect' => env('OAUTH_REDIRECT_URI', env('APP_URL').'/auth/callback'),
