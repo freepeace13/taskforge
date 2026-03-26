@@ -55,16 +55,19 @@ class AuthServiceProvider extends ServiceProvider
         Auth::viaRequest('techysavvy', function ($request) {
             $token = $request->bearerToken();
 
+            if (! is_string($token) || $token === '') {
+                return null;
+            }
+
             try {
                 $authId = $this->app->make(AuthServerTokenValidator::class)->validate($token);
 
                 return User::firstWhere('auth_id', $authId);
             } catch (\Exception $e) {
-                Log::error('Error validating token: ' . $e->getMessage());
+                Log::error('Error validating token: '.$e->getMessage());
+
                 return null;
             }
         });
     }
-
-
 }

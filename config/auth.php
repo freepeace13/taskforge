@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'techysavvy' => [
+            'driver' => 'techysavvy',
+            'provider' => 'users',
+        ],
     ],
 
     /*

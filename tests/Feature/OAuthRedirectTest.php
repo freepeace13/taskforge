@@ -10,6 +10,7 @@ class OAuthRedirectTest extends TestCase
     {
         config([
             'services.techysavvy.client_id' => 'test-client-id',
+            'services.techysavvy.server_url' => 'http://auth.techysavvy.test',
             'services.techysavvy.redirect' => 'https://taskforge.test/auth/callback',
         ]);
 
@@ -19,7 +20,7 @@ class OAuthRedirectTest extends TestCase
 
         $location = $response->headers->get('Location');
 
-        $this->assertStringStartsWith('https://auth.techysavvy.me/oauth/authorize', $location);
+        $this->assertStringStartsWith('http://auth.techysavvy.test/oauth/authorize', $location);
 
         parse_str(parse_url($location, PHP_URL_QUERY) ?: '', $params);
 

@@ -15,7 +15,7 @@ use App\Http\Middleware\TenancyMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-    Route::middleware(['techysavvy', TenancyMiddleware::class])->group(function () {
+    Route::middleware(['auth:techysavvy', TenancyMiddleware::class])->group(function () {
         Route::get('me', CurrentUserController::class)->name('api.v1.me');
 
         Route::get('orgs', [OrganizationController::class, 'index'])->name('api.v1.orgs.index');
