@@ -42,7 +42,7 @@ class TechysavvyOAuthProvider extends AbstractProvider
      */
     protected function getUserByToken($token): array
     {
-        $userUrl = $this->serverUrl() . '/api/user';
+        $userUrl = $this->serverUrl() . '/api/token/user';
 
         $response = $this->getHttpClient()->get($userUrl, [
             \GuzzleHttp\RequestOptions::HEADERS => [
