@@ -54,6 +54,7 @@ export type { ButtonProps } from './Button';
 ## Page Container Rules
 
 - **Pages are source of truth**: Files in `resources/js/pages/*` are route entry containers and own page-level state/orchestration.
+- **Framework boundary**: keep Inertia hooks, router visits, and Ziggy route helpers out of `features/*`; use pages and/or `resources/js/app.tsx` to wire these concerns.
 - **Do not reduce pages to passive re-exports**: A page file should define or orchestrate page behavior directly.
 - **Keep feature modules focused**: Feature modules should expose reusable UI, hooks, and helpers consumed by page containers.
 
@@ -62,6 +63,30 @@ export type { ButtonProps } from './Button';
 - **Prefer props by default** for shallow trees and clear ownership.
 - **Use feature-scoped context when prop passing becomes inefficient** (deep prop chains, broad fan-out, or tightly coupled shared state).
 - **Context location is mandatory**: define context under the owning feature (for example `resources/js/features/layout/context/*`), not under `resources/js/pages/*` and not as app-global by default.
+- **State ownership split**: features may own feature-local UI state/actions, but framework-derived state/actions must be injected from pages/app as props or callbacks.
+- **State provision rule**: pages/app provide runtime framework state/actions to feature-defined contexts; features should not fetch framework state directly.
+
+## Good vs Avoid Examples
+
+- Good:
+  - `AppLayout` in `features/layout` receives `onLogoutRequest` and `navItems` via props, while handling local UI behavior internally.
+  - `resources/js/app.tsx` composes default layout and provides Inertia/Ziggy-derived callbacks and route links.
+  - Feature components consume `useLayoutContext()` from `features/layout/context/*`, not framework hooks.
+- Avoid:
+  - Using `usePage()`, `router.visit/post`, or `route()` directly inside feature UI components.
+  - Fetching auth/session route data from framework APIs in feature modules instead of receiving typed props.
+  - Moving feature-local reusable context into page files.
+
+## Good vs Avoid Examples
+
+- Good:
+  - `AppLayout` in `features/layout` receives `onLogoutRequest` and `navItems` via props, while handling local UI behavior internally.
+  - `resources/js/app.tsx` composes default layout and provides Inertia/Ziggy-derived callbacks and route links.
+  - Feature components consume `useLayoutContext()` from `features/layout/context/*`, not framework hooks.
+- Avoid:
+  - Using `usePage()`, `router.visit/post`, or `route()` directly inside feature UI components.
+  - Fetching auth/session route data from framework APIs in feature modules instead of receiving typed props.
+  - Moving feature-local reusable context into page files.
 
 ## Component Design Guidelines
 
