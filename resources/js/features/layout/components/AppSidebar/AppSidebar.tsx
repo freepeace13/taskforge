@@ -1,4 +1,4 @@
-import Button from '@/Components/Button';
+import { Button } from '@/features/shared/ui';
 
 type SidebarNavItem = {
     href: string;
@@ -148,3 +148,4 @@ export default function AppSidebar({
         </>
     );
 }
+

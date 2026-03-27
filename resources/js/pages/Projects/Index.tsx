@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Head } from '@inertiajs/react';
-import Button from '@/Components/Button';
-import Modal from '@/Components/Modal';
+import { Button, Modal } from '@/features/shared/ui';
 
 type ProjectStatus = 'Active' | 'On Hold' | 'Completed';
 

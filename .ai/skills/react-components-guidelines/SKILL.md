@@ -1,6 +1,6 @@
 ---
 name: react-components-guidelines
-description: Provides conventions and best practices for React components under resources/js/Components, including folder structure, barrel files, imports, props, state management, styling, and testing. Use when creating, modifying, or reviewing React components in this project.
+description: Provides conventions and best practices for React components in the Taskforge feature-based frontend (`resources/js/features`, `resources/js/pages`, and `resources/js/components`). Use when creating, modifying, or reviewing React components, page containers, imports, props/context, styling, and tests.
 ---
 
 # React Components Guidelines
@@ -9,35 +9,59 @@ description: Provides conventions and best practices for React components under 
 
 Use these rules whenever:
 
-- You create or rename React components under `resources/js/Components`.
-- You add or update imports that reference components in `resources/js/Components`.
+- You create or rename React components under `resources/js/features/*` or `resources/js/components`.
+- You add or update imports that reference `resources/js/features/*`, `resources/js/pages/*`, or `resources/js/components/*`.
 - You add tests, hooks, or utilities that are specific to a single component.
 
 ## Folder & Import Conventions
 
-- **One folder per component**: Each React component under `resources/js/Components` must live in a folder that matches the component name. For example:
-  - `resources/js/Components/Button/Button.tsx`
-  - `resources/js/Components/Card/Card.tsx`
-  - `resources/js/Components/StatusBadge/StatusBadge.tsx`
+- **Use lowercase top-level JS folders**: Keep top-level frontend directories lowercase:
+  - `resources/js/pages`
+  - `resources/js/features`
+  - `resources/js/components`
+  - `resources/js/test`
+
+- **Feature-first placement**:
+  - Put feature-specific UI in `resources/js/features/<feature>/...`.
+  - Keep route entry containers in `resources/js/pages/*`.
+  - Use `resources/js/components/*` only for legacy/shared pieces not yet migrated to `features/shared`.
+
+- **One folder per component**: Each React component should live in a folder that matches the component name. For example:
+  - `resources/js/features/shared/ui/Button/Button.tsx`
+  - `resources/js/features/layout/components/AppHeader/AppHeader.tsx`
+  - `resources/js/components/Card/Card.tsx`
 
 - **Barrel entry file**: Each component folder must expose a single public entry file (`index.ts` or `index.tsx`) that re-exports the default component and any public types. For example:
 
 ```ts
-// resources/js/Components/Button/index.ts
+// resources/js/features/shared/ui/Button/index.ts
 export { default } from './Button';
 export type { ButtonProps } from './Button';
 ```
 
 - **Import from the folder root**: Always import components from the folder root, not from the implementation file. For example:
-  - ✅ `import Button from '@/Components/Button';`
-  - ❌ `import Button from '@/Components/Button/Button';`
+  - ✅ `import { Button } from '@/features/shared/ui';`
+  - ✅ `import AppHeader from '@/features/layout/components/AppHeader';`
+  - ❌ `import Button from '@/features/shared/ui/Button/Button';`
 
 - **Colocate component-specific code**: Place tests, hooks, and utilities next to the component inside its folder. For example:
-  - `resources/js/Components/Button/Button.test.tsx`
-  - `resources/js/Components/Button/useButtonAnalytics.ts`
-  - `resources/js/Components/Button/types.ts`
+  - `resources/js/features/shared/ui/Button/Button.test.tsx`
+  - `resources/js/features/shared/ui/Button/useButtonAnalytics.ts`
+  - `resources/js/features/shared/ui/Button/types.ts`
 
-- **No new flat components**: Do not create new top-level `.tsx` files directly inside `resources/js/Components`. Always create a folder for the component and put the main component file and any related code inside that folder.
+- **No new flat components**: Do not create new top-level `.tsx` files directly inside `resources/js/features/*` or `resources/js/components`. Always create a folder for the component and put the main component file and related code inside that folder.
+
+## Page Container Rules
+
+- **Pages are source of truth**: Files in `resources/js/pages/*` are route entry containers and own page-level state/orchestration.
+- **Do not reduce pages to passive re-exports**: A page file should define or orchestrate page behavior directly.
+- **Keep feature modules focused**: Feature modules should expose reusable UI, hooks, and helpers consumed by page containers.
+
+## Props vs Context
+
+- **Prefer props by default** for shallow trees and clear ownership.
+- **Use feature-scoped context when prop passing becomes inefficient** (deep prop chains, broad fan-out, or tightly coupled shared state).
+- **Context location is mandatory**: define context under the owning feature (for example `resources/js/features/layout/context/*`), not under `resources/js/pages/*` and not as app-global by default.
 
 ## Component Design Guidelines
 

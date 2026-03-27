@@ -95,7 +95,7 @@ When working on SSO-related client changes in this repo:
      - `auth.tenants` or similar: tenant list/metadata if provided by the SSO server.
      - `auth.currentTenant`: the currently selected tenant context.
 2. **Update layouts and pages**
-   - Update `AppLayout.tsx` and relevant pages (e.g. `Dashboard.tsx`) to:
+   - Update the feature layout (`resources/js/features/layout/AppLayout.tsx`) and relevant page containers (for example `resources/js/pages/Dashboard.tsx`) to:
      - Consume these shared props.
      - Show user identity and tenant selection UI consistent with the rest of the app.
 3. **Keep client-side logic thin**

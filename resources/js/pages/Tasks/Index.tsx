@@ -1,6 +1,5 @@
 import { Head } from '@inertiajs/react';
-import Button from '@/Components/Button';
-import KanbanColumn from '@/Components/KanbanColumn';
+import { Button, KanbanColumn } from '@/features/shared/ui';
 
 type KanbanColumnConfig = {
     id: number;

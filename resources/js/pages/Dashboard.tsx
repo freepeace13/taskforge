@@ -1,10 +1,8 @@
 import type { PageProps } from '@inertiajs/core';
 import { Head } from '@inertiajs/react';
-import Button from '@/Components/Button';
-import StatCard from '@/Components/StatCard';
-import StatusBadge from '@/Components/StatusBadge';
-import Table from '@/Components/Table';
-import type { DashboardStats, StatusVariant } from '@/Components/types';
+import { Button, StatCard, StatusBadge, Table } from '@/features/shared/ui';
+import type { StatusVariant } from '@/features/shared/types';
+import type { DashboardStats } from '@/features/dashboard/types';
 
 type DashboardProps = PageProps & {
     stats: DashboardStats;

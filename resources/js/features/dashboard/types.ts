@@ -5,5 +5,3 @@ export interface DashboardStats {
     overdue: number;
 }
 
-export type StatusVariant = 'in-progress' | 'done' | 'backlog';
-

@@ -1,5 +1,4 @@
-import Button from '@/Components/Button';
-import Modal from '@/Components/Modal';
+import { Button, Modal } from '@/features/shared/ui';
 
 type TaskModalProps = {
     isOpen: boolean;
@@ -68,3 +67,4 @@ export default function TaskModal({ isOpen, onClose }: TaskModalProps) {
         </Modal>
     );
 }
+

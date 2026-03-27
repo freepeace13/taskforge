@@ -6,7 +6,11 @@
         "moduleResolution": "bundler",
         "strict": true,
         "jsx": "react-jsx",
-        "types": ["vite/client"],
+        "types": [
+            "vite/client",
+            "vitest/globals",
+            "@testing-library/jest-dom"
+        ],
         "baseUrl": ".",
         "paths": {
             "@/*": ["resources/js/*"]

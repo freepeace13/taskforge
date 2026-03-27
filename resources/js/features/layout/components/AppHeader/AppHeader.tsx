@@ -1,4 +1,4 @@
-import Button from '@/Components/Button';
+import { Button } from '@/features/shared/ui';
 
 type AppHeaderProps = {
     onOpenSidebar: () => void;
@@ -75,3 +75,4 @@ export default function AppHeader({
         </>
     );
 }
+

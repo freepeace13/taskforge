@@ -32,7 +32,8 @@ This project has domain-specific skills available. You MUST activate the relevan
 
 - `inertia-react-development` — Develops Inertia.js v2 React client-side applications. Activates when creating React pages, forms, or navigation; using &lt;Link&gt;, &lt;Form&gt;, useForm, or router; working with deferred props, prefetching, or polling; or when user mentions React with Inertia, React pages, React forms, or React navigation.
 - `tailwindcss-development` — Styles applications using Tailwind CSS v4 utilities. Activates when adding styles, restyling components, working with gradients, spacing, layout, flex, grid, responsive design, dark mode, colors, typography, or borders; or when the user mentions CSS, styling, classes, Tailwind, restyle, hero section, cards, buttons, or any visual/UI changes.
-- `react-components-guidelines` — Provides conventions and best practices for React components under resources/js/Components, including folder structure, barrel files, imports, props, state management, styling, and testing. Use when creating, modifying, or reviewing React components in this project.
+- `frontend-folder-structure` — Defines Taskforge frontend folder structure rules for `resources/js`, including page container ownership, feature module boundaries, lowercase directory naming, and props-vs-context decisions. Use when organizing, moving, or reviewing frontend files and imports.
+- `react-components-guidelines` — Provides conventions and best practices for React components in the Taskforge feature-based frontend (`resources/js/features`, `resources/js/pages`, and `resources/js/components`). Use when creating, modifying, or reviewing React components, page containers, imports, props/context, styling, and tests.
 - `sso-auth-flow` — Guides work on the SSO authentication client in this Taskforge app that integrates with the external auth server. Use when implementing, debugging, or extending SSO login redirects, callbacks, token handling, tenant-aware auth, or React/Inertia flows that depend on this auth server.
 
 ## Conventions
@@ -165,7 +166,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 # Inertia
 
 - Inertia creates fully client-side rendered SPAs without modern SPA complexity, leveraging existing server-side patterns.
-- Components live in `resources/js/Pages` (unless specified in `vite.config.js`). Use `Inertia::render()` for server-side routing instead of Blade views.
+- Components live in `resources/js/pages` (unless specified in `vite.config.js`). Use `Inertia::render()` for server-side routing instead of Blade views.
 - ALWAYS use `search-docs` tool for version-specific Inertia documentation and updated code examples.
 - IMPORTANT: Activate `inertia-react-development` when working with Inertia client-side patterns.
 
@@ -180,7 +181,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 # Inertia
 
 - Inertia creates fully client-side rendered SPAs without modern SPA complexity, leveraging existing server-side patterns.
-- Components live in `resources/js/Pages` (unless specified in `vite.config.js`). Use `Inertia::render()` for server-side routing instead of Blade views.
+- Components live in `resources/js/pages` (unless specified in `vite.config.js`). Use `Inertia::render()` for server-side routing instead of Blade views.
 - ALWAYS use `search-docs` tool for version-specific Inertia documentation and updated code examples.
 - IMPORTANT: Activate `inertia-react-development` when working with Inertia client-side patterns.
 

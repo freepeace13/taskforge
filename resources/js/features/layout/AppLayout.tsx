@@ -1,10 +1,8 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import AppHeader from '@/Components/Layout/AppHeader';
-import TaskModal from '@/Components/Layout/TaskModal';
-import AppSidebar from '@/Components/Layout/AppSidebar';
 import { route } from 'ziggy-js';
+import { AppHeader, AppSidebar, TaskModal } from '@/features/layout/components';
 
 type AppLayoutProps = {
     children: ReactNode;
