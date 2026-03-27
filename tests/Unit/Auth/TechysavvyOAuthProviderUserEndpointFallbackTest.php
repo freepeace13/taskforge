@@ -44,7 +44,55 @@ class TechysavvyOAuthProviderUserEndpointFallbackTest extends TestCase
         $this->assertSame('alice@example.com', $user->getEmail());
 
         $this->assertCount(2, $history);
-        $this->assertSame('/api/user', $history[0]['request']->getUri()->getPath());
+        $this->assertSame('/api/token/user', $history[0]['request']->getUri()->getPath());
         $this->assertSame('/api/me', $history[1]['request']->getUri()->getPath());
+    }
+
+    public function test_it_maps_tenants_from_user_details_response(): void
+    {
+        $history = [];
+
+        $tenants = [
+            [
+                'id' => 1,
+                'slug' => 'acme',
+                'name' => 'Acme',
+            ],
+            [
+                'id' => 2,
+                'slug' => 'globex',
+                'name' => 'Globex',
+            ],
+        ];
+
+        $mock = new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'id' => '123',
+                'name' => 'Alice',
+                'email' => 'alice@example.com',
+                'email_verified_at' => null,
+                'tenants' => $tenants,
+            ])),
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+        $handlerStack->push(Middleware::history($history));
+
+        $client = new Client(['handler' => $handlerStack]);
+
+        $this->app['config']->set('services.techysavvy.server_url', 'http://auth.techysavvy.test');
+
+        $request = Request::create('http://taskforge.test');
+        $provider = new TechysavvyOAuthProvider($request, 'test-client-id', 'test-client-secret', 'http://taskforge.test/auth/callback');
+        $provider->setHttpClient($client);
+
+        $user = $provider->userFromToken('test-token');
+
+        $this->assertSame('123', (string) $user->getId());
+        $this->assertSame('alice@example.com', $user->getEmail());
+        $this->assertSame($tenants, $user->tenants);
+
+        $this->assertCount(1, $history);
+        $this->assertSame('/api/token/user', $history[0]['request']->getUri()->getPath());
     }
 }
