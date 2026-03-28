@@ -4,25 +4,27 @@ namespace App\Http\Controllers\Api\V1\Project;
 
 use App\Contracts\Actions\Project\ArchivesProjectAction;
 use App\Contracts\Actions\Project\RestoresProjectAction;
+use App\Contracts\Queries\Project\ListsProjects;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
+use App\Queries\Project\ListProjectsQuery;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ArchiveController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index()
+    public function index(ListsProjects $listsProjects)
     {
         $org = tenant()->organization;
 
         $this->authorize('viewAny', [Project::class, $org]);
 
-        $projects = $org->projects()
-            ->whereNotNull('archived_at')
-            ->latest('id')
-            ->paginate();
+        $projects = $listsProjects->handle(new ListProjectsQuery(
+            organizationId: $org->id,
+            archivedFilter: 'archived',
+        ));
 
         return ProjectResource::collection($projects);
     }

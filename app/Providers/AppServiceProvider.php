@@ -46,6 +46,7 @@ use App\Contracts\Actions\Task\CreatesTaskAction as CreatesTaskContract;
 use App\Contracts\Actions\Task\DeletesTaskAction as DeletesTaskContract;
 use App\Contracts\Actions\Task\ReopensTaskAction as ReopensTaskContract;
 use App\Contracts\Actions\Task\UpdatesTaskAction as UpdatesTaskContract;
+use App\Contracts\Queries\Project\ListsProjects as ListsProjectsContract;
 use App\Contracts\Queries\Task\ListsTaskHubOrganizations as ListsTaskHubOrganizationsContract;
 use App\Contracts\Queries\Task\ListsTasks as ListsTasksContract;
 use App\Data\TenantContext;
@@ -54,6 +55,7 @@ use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\Project;
 use App\Models\Task;
+use App\Queries\Project\ListProjectsQueryHandler;
 use App\Queries\Task\ListTaskHubOrganizationsQueryHandler;
 use App\Queries\Task\ListTasksQueryHandler;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -71,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(ListsTasksContract::class, ListTasksQueryHandler::class);
         $this->app->bind(ListsTaskHubOrganizationsContract::class, ListTaskHubOrganizationsQueryHandler::class);
+        $this->app->bind(ListsProjectsContract::class, ListProjectsQueryHandler::class);
 
         $this->app->bind(InvitesUserAction::class, InviteUserAction::class);
         $this->app->bind(AcceptsInvitationAction::class, AcceptInvitationAction::class);

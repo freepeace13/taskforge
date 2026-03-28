@@ -3,7 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { TaskForm } from '@/features/tasks';
 import type { TaskAttributes, TaskFormFields } from '@/features/tasks/types';
-import FlashSuccess from '@/pages/Tasks/FlashSuccess';
+import FlashMessages from '@/components/FlashMessages';
 
 type TasksEditProps = PageProps & {
     organization: { slug: string; name: string };
@@ -33,7 +33,7 @@ export default function TasksEdit({ organization, project, task }: TasksEditProp
         <>
             <Head title={`Edit — ${task.title}`} />
 
-            <FlashSuccess />
+            <FlashMessages />
 
             <div className="mb-6">
                 <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">

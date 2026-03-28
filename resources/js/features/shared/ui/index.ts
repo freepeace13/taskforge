@@ -1,6 +1,9 @@
 export { default as Button } from './Button';
 export type { ButtonProps } from './Button';
 
+export { default as FlashMessage } from './FlashMessage';
+export type { FlashMessageProps, FlashMessageVariant } from './FlashMessage';
+
 export { default as Modal } from './Modal';
 export type { ModalProps } from './Modal';
 

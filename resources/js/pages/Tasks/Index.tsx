@@ -3,7 +3,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { TaskTable } from '@/features/tasks';
 import type { TaskAttributes, TaskTableRow } from '@/features/tasks/types';
-import FlashSuccess from '@/pages/Tasks/FlashSuccess';
+import FlashMessages from '@/components/FlashMessages';
 
 type PaginatedTasks = {
     data: TaskAttributes[];
@@ -47,7 +47,7 @@ export default function TasksIndex({ organization, project, tasks }: TasksIndexP
         <>
             <Head title={`Tasks — ${project.name}`} />
 
-            <FlashSuccess />
+            <FlashMessages />
 
             <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <div>

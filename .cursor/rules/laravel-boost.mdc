@@ -9,6 +9,7 @@ alwaysApply: false
 # Laravel Boost (project skills)
 
 - Add or edit skills under `.ai/skills/<skill-name>/SKILL.md` (not under `.cursor/skills/` for new work).
+- Frontmatter must be valid YAML: if `description` contains colons (`:`), quote the value or use a folded block (`>-` / `|`) so Symfony YAML can parse it. Invalid frontmatter causes Boost to skip the skill, so it never appears under `.cursor/skills/` or Cursor slash skills.
 - Register the skill name in `boost.json` → `skills`.
 - After changing skills or `boost.json`, run `vendor/bin/sail artisan boost:update`.
 - Do not duplicate skill lists in `AGENTS.md`; Boost supplies skill discovery for agents that use it.

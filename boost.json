@@ -12,6 +12,7 @@
         "tailwindcss-development",
         "application-query-handlers",
         "application-write-actions",
+        "frontend-feature-composition",
         "frontend-folder-structure",
         "react-components-guidelines",
         "sso-auth-flow",

@@ -2,7 +2,7 @@ import type { PageProps } from '@inertiajs/core';
 import { Head, Link, router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import type { TaskAttributes } from '@/features/tasks/types';
-import FlashSuccess from '@/pages/Tasks/FlashSuccess';
+import FlashMessages from '@/components/FlashMessages';
 
 type TasksShowProps = PageProps & {
     organization: { slug: string; name: string };
@@ -28,7 +28,7 @@ export default function TasksShow({ organization, project, task }: TasksShowProp
         <>
             <Head title={task.title} />
 
-            <FlashSuccess />
+            <FlashMessages />
 
             <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
                 <div>

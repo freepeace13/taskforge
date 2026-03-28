@@ -3,7 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { TaskForm } from '@/features/tasks';
 import type { TaskFormFields } from '@/features/tasks/types';
-import FlashSuccess from '@/pages/Tasks/FlashSuccess';
+import FlashMessages from '@/components/FlashMessages';
 
 type TasksCreateProps = PageProps & {
     organization: { slug: string; name: string };
@@ -31,7 +31,7 @@ export default function TasksCreate({ organization, project }: TasksCreateProps)
         <>
             <Head title={`New task — ${project.name}`} />
 
-            <FlashSuccess />
+            <FlashMessages />
 
             <div className="mb-6">
                 <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{organization.name}</p>

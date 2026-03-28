@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api\V1\Project;
 use App\Contracts\Actions\Project\CreatesProjectAction;
 use App\Contracts\Actions\Project\DeletesProjectAction;
 use App\Contracts\Actions\Project\UpdatesProjectAction;
+use App\Contracts\Queries\Project\ListsProjects;
 use App\Data\ProjectData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
+use App\Queries\Project\ListProjectsQuery;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,16 +20,16 @@ class ProjectController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index()
+    public function index(ListsProjects $listsProjects)
     {
         $org = tenant()->organization;
 
         $this->authorize('viewAny', [Project::class, $org]);
 
-        $projects = $org->projects()
-            ->whereNull('archived_at')
-            ->latest('id')
-            ->paginate();
+        $projects = $listsProjects->handle(new ListProjectsQuery(
+            organizationId: $org->id,
+            archivedFilter: 'active',
+        ));
 
         return ProjectResource::collection($projects);
     }
@@ -80,10 +82,6 @@ class ProjectController extends Controller
         Project $project,
         DeletesProjectAction $action
     ) {
-        if (! $project instanceof Project) {
-            $project = Project::query()->findOrFail($project);
-        }
-
         $user = request()->user();
 
         $action->delete(actor: $user, project: $project);
