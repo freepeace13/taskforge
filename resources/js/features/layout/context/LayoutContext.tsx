@@ -6,9 +6,8 @@ export type LayoutContextValue = {
     isSidebarOpen: boolean;
     openSidebar: () => void;
     closeSidebar: () => void;
-    isTaskModalOpen: boolean;
-    openTaskModal: () => void;
-    closeTaskModal: () => void;
+    /** Navigate to the tasks hub (project picker). */
+    goToTasksHub: () => void;
     logout: () => void;
     isLoggingOut: boolean;
 };

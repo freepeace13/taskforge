@@ -13,8 +13,9 @@ return [
         'dashboard',
         'projects.*',
         'tasks.*',
+        'projects.tasks.*',
         'invitations.accept',
-        'logout'
+        'logout',
     ],
 
     /*

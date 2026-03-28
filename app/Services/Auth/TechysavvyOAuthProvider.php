@@ -2,7 +2,6 @@
 
 namespace App\Services\Auth;
 
-use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\User;
 
@@ -65,8 +64,6 @@ class TechysavvyOAuthProvider extends AbstractProvider
         }
 
         $data = json_decode((string) $response->getBody(), true);
-
-        Log::info('User data', $data);
 
         return is_array($data) ? $data : [];
     }

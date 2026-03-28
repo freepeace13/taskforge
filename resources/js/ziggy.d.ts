@@ -10,7 +10,76 @@ declare module 'ziggy-js' {
     ],
     "dashboard": [],
     "projects.index": [],
-    "tasks.index": []
+    "tasks.hub": [],
+    "projects.tasks.index": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "projects.tasks.create": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "projects.tasks.store": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "projects.tasks.edit": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "id"
+        },
+        {
+            "name": "task",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "projects.tasks.show": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "id"
+        },
+        {
+            "name": "task",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "projects.tasks.update": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "id"
+        },
+        {
+            "name": "task",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "projects.tasks.destroy": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "id"
+        },
+        {
+            "name": "task",
+            "required": true,
+            "binding": "id"
+        }
+    ]
 }
 }
 export {};

@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { AppHeader, AppSidebar, TaskModal } from '@/features/layout/components';
+import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
+import { AppHeader, AppSidebar } from '@/features/layout/components';
 import { LayoutProvider, useLayoutContext, type LayoutContextValue } from '@/features/layout/context/LayoutContext';
 
 type AppLayoutProps = {
@@ -9,6 +11,7 @@ type AppLayoutProps = {
     userEmail: string;
     navItems: SidebarNavItem[];
     onLogoutRequest: () => Promise<void> | void;
+    onNewTaskNavigate?: () => void;
 };
 
 export type SidebarNavItem = {
@@ -18,16 +21,15 @@ export type SidebarNavItem = {
     isActive?: boolean;
 };
 
-function AppLayoutShell({ children, userName, userEmail, navItems }: Omit<AppLayoutProps, 'onLogoutRequest'>) {
-    const { openSidebar, closeSidebar, isSidebarOpen, toggleDarkMode, openTaskModal, closeTaskModal, isTaskModalOpen, logout, isLoggingOut } =
-        useLayoutContext();
+function AppLayoutShell({ children, userName, userEmail, navItems }: Omit<AppLayoutProps, 'onLogoutRequest' | 'onNewTaskNavigate'>) {
+    const { openSidebar, closeSidebar, isSidebarOpen, toggleDarkMode, goToTasksHub, logout, isLoggingOut } = useLayoutContext();
 
     return (
         <div className="min-h-full">
             <AppHeader
                 onOpenSidebar={openSidebar}
                 onToggleDarkMode={toggleDarkMode}
-                onOpenTaskModal={openTaskModal}
+                onOpenTaskModal={goToTasksHub}
             />
             <AppSidebar
                 isOpen={isSidebarOpen}
@@ -43,18 +45,13 @@ function AppLayoutShell({ children, userName, userEmail, navItems }: Omit<AppLay
             <div className="lg:pl-72">
                 <main className="px-4 py-6 lg:px-6">{children}</main>
             </div>
-            <TaskModal
-                isOpen={isTaskModalOpen}
-                onClose={closeTaskModal}
-            />
         </div>
     );
 }
 
-export default function AppLayout({ children, userName, userEmail, navItems, onLogoutRequest }: AppLayoutProps) {
+export default function AppLayout({ children, userName, userEmail, navItems, onLogoutRequest, onNewTaskNavigate }: AppLayoutProps) {
     const [isDark, setIsDark] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     useEffect(() => {
@@ -72,7 +69,6 @@ export default function AppLayout({ children, userName, userEmail, navItems, onL
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
                 setIsSidebarOpen(false);
-                setIsTaskModalOpen(false);
             }
         };
 
@@ -82,6 +78,12 @@ export default function AppLayout({ children, userName, userEmail, navItems, onL
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, []);
+
+    const defaultGoToTasksHub = useCallback(() => {
+        router.visit(route('tasks.hub'));
+    }, []);
+
+    const goToTasksHub = onNewTaskNavigate ?? defaultGoToTasksHub;
 
     const value = useMemo<LayoutContextValue>(
         () => ({
@@ -96,9 +98,7 @@ export default function AppLayout({ children, userName, userEmail, navItems, onL
             isSidebarOpen,
             openSidebar: () => setIsSidebarOpen(true),
             closeSidebar: () => setIsSidebarOpen(false),
-            isTaskModalOpen,
-            openTaskModal: () => setIsTaskModalOpen(true),
-            closeTaskModal: () => setIsTaskModalOpen(false),
+            goToTasksHub,
             logout: async () => {
                 setIsLoggingOut(true);
 
@@ -110,7 +110,7 @@ export default function AppLayout({ children, userName, userEmail, navItems, onL
             },
             isLoggingOut,
         }),
-        [isDark, isSidebarOpen, isTaskModalOpen, isLoggingOut, onLogoutRequest],
+        [isDark, isSidebarOpen, isLoggingOut, onLogoutRequest, goToTasksHub],
     );
 
     return (

@@ -11,16 +11,16 @@ class InertiaKanbanTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_inertia_kanban_route_renders_tasks_index_component(): void
+    public function test_inertia_tasks_hub_route_renders_tasks_hub_component(): void
     {
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->get(route('tasks.index'));
+        $response = $this->actingAs($user)->get(route('tasks.hub'));
 
         $response->assertOk();
 
         $response->assertInertia(
             fn (Assert $page): Assert => $page
-                ->component('Tasks/Index'),
+                ->component('Tasks/Hub', false),
         );
     }
 }

@@ -12,10 +12,15 @@ createInertiaApp({
         page.default.layout =
             page.default.layout ||
             ((currentPage: any) => {
+                const tasksRouteName = route().current();
+                const tasksNavActive =
+                    tasksRouteName === 'tasks.hub' ||
+                    (typeof tasksRouteName === 'string' && tasksRouteName.startsWith('projects.tasks.'));
+
                 const navItems: SidebarNavItem[] = [
                     { href: route('dashboard'), icon: '🏠', label: 'Dashboard', isActive: route().current('dashboard') },
                     { href: route('projects.index'), icon: '📁', label: 'Projects', isActive: route().current('projects.index') },
-                    { href: route('tasks.index'), icon: '✅', label: 'My Tasks', isActive: route().current('tasks.index') },
+                    { href: route('tasks.hub'), icon: '✅', label: 'My Tasks', isActive: tasksNavActive },
                     { href: '#', icon: '👥', label: 'Team' },
                     { href: '#', icon: '🕒', label: 'Activity' },
                 ];

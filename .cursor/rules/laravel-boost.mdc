@@ -1,0 +1,14 @@
+---
+description: Laravel Boost — where project skills live, how to register them, and AGENTS.md policy.
+globs:
+  - boost.json
+  - .ai/skills/**/*.md
+alwaysApply: false
+---
+
+# Laravel Boost (project skills)
+
+- Add or edit skills under `.ai/skills/<skill-name>/SKILL.md` (not under `.cursor/skills/` for new work).
+- Register the skill name in `boost.json` → `skills`.
+- After changing skills or `boost.json`, run `vendor/bin/sail artisan boost:update`.
+- Do not duplicate skill lists in `AGENTS.md`; Boost supplies skill discovery for agents that use it.

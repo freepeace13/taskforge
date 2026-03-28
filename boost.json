@@ -10,8 +10,11 @@
     "skills": [
         "inertia-react-development",
         "tailwindcss-development",
+        "application-query-handlers",
+        "application-write-actions",
         "frontend-folder-structure",
         "react-components-guidelines",
-        "sso-auth-flow"
+        "sso-auth-flow",
+        "tenancy"
     ]
 }

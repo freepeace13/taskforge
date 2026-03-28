@@ -1,0 +1,15 @@
+---
+description: Taskforge multi-tenancy — load the tenancy skill when editing TenantContext, TenancyMiddleware, tenant helpers, or tenant test concerns.
+globs:
+  - app/Http/Middleware/TenancyMiddleware.php
+  - app/Data/TenantContext.php
+  - app/Support/helpers.php
+  - tests/Concerns/InteractsWithTenant.php
+alwaysApply: false
+---
+
+# Tenancy
+
+When changing tenant resolution, org scoping, or tests that simulate tenants, read and follow `.cursor/skills/tenancy/SKILL.md`.
+
+Key files: `app/Http/Middleware/TenancyMiddleware.php` (resolution order), `app/Data/TenantContext.php`, `app/Providers/AppServiceProvider.php` (route bindings), `tests/Concerns/InteractsWithTenant.php`.

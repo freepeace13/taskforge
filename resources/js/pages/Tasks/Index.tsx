@@ -1,94 +1,106 @@
-import { Head } from '@inertiajs/react';
-import { Button, KanbanColumn } from '@/features/shared/ui';
+import type { PageProps } from '@inertiajs/core';
+import { Head, Link, router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
+import { TaskTable } from '@/features/tasks';
+import type { TaskAttributes, TaskTableRow } from '@/features/tasks/types';
+import FlashSuccess from '@/pages/Tasks/FlashSuccess';
 
-type KanbanColumnConfig = {
-    id: number;
-    title: string;
-    count: number;
-    indicatorColorClass: string;
+type PaginatedTasks = {
+    data: TaskAttributes[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    next_page_url: string | null;
+    prev_page_url: string | null;
 };
 
-const columns: KanbanColumnConfig[] = [
-    { id: 1, title: 'Backlog', count: 6, indicatorColorClass: 'bg-gray-400' },
-    { id: 2, title: 'Ready', count: 4, indicatorColorClass: 'bg-blue-500' },
-    { id: 3, title: 'In Progress', count: 5, indicatorColorClass: 'bg-yellow-500' },
-    { id: 4, title: 'Review', count: 3, indicatorColorClass: 'bg-purple-500' },
-    { id: 5, title: 'Blocked', count: 1, indicatorColorClass: 'bg-red-500' },
-    { id: 6, title: 'Done', count: 8, indicatorColorClass: 'bg-green-500' },
-];
+type TasksIndexPageProps = PageProps & {
+    organization: { slug: string; name: string };
+    project: { id: number; name: string };
+    tasks: PaginatedTasks;
+};
 
-export default function TasksIndex() {
+export default function TasksIndex({ organization, project, tasks }: TasksIndexPageProps) {
+    const rows: TaskTableRow[] = tasks.data.map((t) => ({
+        ...t,
+        showUrl: route('projects.tasks.show', {
+            project: project.id,
+            task: t.id,
+        }),
+        editUrl: route('projects.tasks.edit', {
+            project: project.id,
+            task: t.id,
+        }),
+    }));
+
+    const handleDelete = (taskId: number) => {
+        router.delete(
+            route('projects.tasks.destroy', {
+                project: project.id,
+                task: taskId,
+            }),
+        );
+    };
+
     return (
         <>
-            <Head title="Kanban" />
+            <Head title={`Tasks — ${project.name}`} />
 
-            <section className="flex flex-col gap-4">
-                <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                        <h1 className="text-xl font-bold tracking-tight">Projects</h1>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            Kanban view by project status.
-                        </p>
-                    </div>
+            <FlashSuccess />
 
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="secondary"
-                            size="md"
-                            aria-label="Switch to table"
-                        >
-                            Table view
-                        </Button>
-
-                        <Button size="md">+ New Project</Button>
-                    </div>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{organization.name}</p>
+                    <h1 className="text-xl font-bold tracking-tight">{project.name}</h1>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Tasks for this project.</p>
                 </div>
 
-                <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex flex-1 flex-col gap-3 sm:flex-row">
-                        <input
-                            className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-gray-800 dark:bg-gray-900 dark:placeholder:text-gray-500 sm:max-w-sm"
-                            placeholder="Search projects..."
-                        />
+                <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                        href={route('tasks.hub')}
+                        className="inline-flex items-center justify-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
+                    >
+                        All projects
+                    </Link>
+                    <Link
+                        href={route('projects.tasks.create', {
+                            project: project.id,
+                        })}
+                        className="inline-flex items-center justify-center rounded-2xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                    >
+                        + New task
+                    </Link>
+                </div>
+            </div>
 
-                        <select className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-gray-800 dark:bg-gray-900 sm:w-48">
-                            <option>All Owners</option>
-                            <option>Kin Basco</option>
-                            <option>Mia</option>
-                            <option>Alex</option>
-                        </select>
+            <TaskTable rows={rows} onDelete={handleDelete} />
 
-                        <select className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-gray-800 dark:bg-gray-900 sm:w-48">
-                            <option>Sort: Updated</option>
-                            <option>Sort: Name</option>
-                            <option>Sort: Progress</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                        >
-                            Clear
-                        </Button>
+            {tasks.last_page > 1 ? (
+                <div className="mt-6 flex items-center justify-between gap-3 text-sm text-gray-600 dark:text-gray-400">
+                    <span>
+                        Page {tasks.current_page} of {tasks.last_page} ({tasks.total} tasks)
+                    </span>
+                    <div className="flex gap-2">
+                        {tasks.prev_page_url ? (
+                            <Link
+                                href={tasks.prev_page_url}
+                                className="rounded-xl border border-gray-200 px-3 py-1.5 font-semibold hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900"
+                            >
+                                Previous
+                            </Link>
+                        ) : null}
+                        {tasks.next_page_url ? (
+                            <Link
+                                href={tasks.next_page_url}
+                                className="rounded-xl border border-gray-200 px-3 py-1.5 font-semibold hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900"
+                            >
+                                Next
+                            </Link>
+                        ) : null}
                     </div>
                 </div>
-
-                <div className="-mx-4 overflow-x-auto overflow-y-visible px-4 pb-4">
-                    <div className="flex min-w-max gap-4">
-                        {columns.map((column) => (
-                            <KanbanColumn
-                                key={column.id}
-                                title={column.title}
-                                count={column.count}
-                                indicatorColorClass={column.indicatorColorClass}
-                            />
-                        ))}
-                    </div>
-                </div>
-            </section>
+            ) : null}
         </>
     );
 }
-

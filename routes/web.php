@@ -31,5 +31,15 @@ Route::get('invitations/{token}/accept', AcceptInvitationController::class)
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
-    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+    Route::get('/tasks', [TaskController::class, 'hub'])->name('tasks.hub');
+
+    Route::prefix('projects/{project}')->group(function () {
+        Route::get('tasks', [TaskController::class, 'index'])->name('projects.tasks.index');
+        Route::get('tasks/create', [TaskController::class, 'create'])->name('projects.tasks.create');
+        Route::post('tasks', [TaskController::class, 'store'])->name('projects.tasks.store');
+        Route::get('tasks/{task}/edit', [TaskController::class, 'edit'])->name('projects.tasks.edit');
+        Route::get('tasks/{task}', [TaskController::class, 'show'])->name('projects.tasks.show');
+        Route::patch('tasks/{task}', [TaskController::class, 'update'])->name('projects.tasks.update');
+        Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('projects.tasks.destroy');
+    });
 });

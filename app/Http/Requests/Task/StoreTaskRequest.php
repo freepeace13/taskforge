@@ -11,6 +11,15 @@ class StoreTaskRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'priority' => $this->priority === '' ? null : $this->priority,
+            'due_date' => $this->due_date === '' ? null : $this->due_date,
+            'description' => $this->description === '' ? null : $this->description,
+        ]);
+    }
+
     /**
      * @return array<string, array<int, mixed>>
      */

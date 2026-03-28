@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Actions\Auth\SyncAuthTenantsForUserAction;
 use App\Actions\Comment\CreateCommentAction;
 use App\Actions\Comment\DeleteCommentAction;
 use App\Actions\Comment\UpdateCommentAction;
@@ -23,6 +24,7 @@ use App\Actions\Task\CreateTaskAction;
 use App\Actions\Task\DeleteTaskAction;
 use App\Actions\Task\ReopenTaskAction;
 use App\Actions\Task\UpdateTaskAction;
+use App\Contracts\Actions\Auth\SyncsAuthTenantsForUser;
 use App\Contracts\Actions\Comment\CreatesCommentAction as CreatesCommentContract;
 use App\Contracts\Actions\Comment\DeletesCommentAction as DeletesCommentContract;
 use App\Contracts\Actions\Comment\UpdatesCommentAction as UpdatesCommentContract;
@@ -44,15 +46,18 @@ use App\Contracts\Actions\Task\CreatesTaskAction as CreatesTaskContract;
 use App\Contracts\Actions\Task\DeletesTaskAction as DeletesTaskContract;
 use App\Contracts\Actions\Task\ReopensTaskAction as ReopensTaskContract;
 use App\Contracts\Actions\Task\UpdatesTaskAction as UpdatesTaskContract;
+use App\Contracts\Queries\Task\ListsTaskHubOrganizations as ListsTaskHubOrganizationsContract;
+use App\Contracts\Queries\Task\ListsTasks as ListsTasksContract;
 use App\Data\TenantContext;
 use App\Models\Comment;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\Project;
 use App\Models\Task;
+use App\Queries\Task\ListTaskHubOrganizationsQueryHandler;
+use App\Queries\Task\ListTasksQueryHandler;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -62,6 +67,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(SyncsAuthTenantsForUser::class, SyncAuthTenantsForUserAction::class);
+
+        $this->app->bind(ListsTasksContract::class, ListTasksQueryHandler::class);
+        $this->app->bind(ListsTaskHubOrganizationsContract::class, ListTaskHubOrganizationsQueryHandler::class);
+
         $this->app->bind(InvitesUserAction::class, InviteUserAction::class);
         $this->app->bind(AcceptsInvitationAction::class, AcceptInvitationAction::class);
         $this->app->bind(CancelsInvitationContract::class, CancelInvitationAction::class);

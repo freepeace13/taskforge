@@ -13,6 +13,7 @@ class Organization extends Model
     use HasFactory;
 
     protected $fillable = [
+        'auth_organization_id',
         'name',
         'slug',
         'owner_id',

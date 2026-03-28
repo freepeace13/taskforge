@@ -5,36 +5,41 @@ namespace App\Http\Controllers\Api\V1\Task;
 use App\Contracts\Actions\Task\CreatesTaskAction;
 use App\Contracts\Actions\Task\DeletesTaskAction;
 use App\Contracts\Actions\Task\UpdatesTaskAction;
+use App\Contracts\Queries\Task\ListsTasks;
 use App\Data\TaskData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
-use App\Models\Organization;
 use App\Models\Project;
 use App\Models\Task;
+use App\Queries\Task\ListTasksQuery;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class TaskController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Organization $org, Project $project)
+    public function index(Request $request, Project $project, ListsTasks $listsTasks)
     {
         $this->authorize('viewAny', [Task::class, $project]);
 
-        $tasks = $project->tasks()
-            ->latest('id')
-            ->paginate();
+        $perPage = $request->filled('per_page')
+            ? $request->integer('per_page')
+            : null;
+
+        $tasks = $listsTasks->handle(new ListTasksQuery(
+            projectId: $project->id,
+            perPage: $perPage,
+        ));
 
         return TaskResource::collection($tasks);
     }
 
-    public function store(Organization $org, Project $project, StoreTaskRequest $request)
+    public function store(Project $project, StoreTaskRequest $request, CreatesTaskAction $action)
     {
-        $action = app(CreatesTaskAction::class);
-
         $task = $action->create(
             actor: $request->user(),
             project: $project,
@@ -51,7 +56,7 @@ class TaskController extends Controller
             ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function show(Organization $org, Project $project, Task $task)
+    public function show(Task $task)
     {
         $this->authorize('view', $task);
 
@@ -59,8 +64,6 @@ class TaskController extends Controller
     }
 
     public function update(
-        Organization $org,
-        Project $project,
         Task $task,
         UpdateTaskRequest $request,
         UpdatesTaskAction $action
@@ -80,8 +83,6 @@ class TaskController extends Controller
     }
 
     public function destroy(
-        Organization $org,
-        Project $project,
         Task $task,
         DeletesTaskAction $action
     ) {
