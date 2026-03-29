@@ -30,10 +30,12 @@ Route::get('invitations/{token}/accept', AcceptInvitationController::class)
     ->name('invitations.accept');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/workspaces', [WorkspaceController::class, 'index'])->name('workspaces.index');
-    Route::post('/workspaces', [WorkspaceController::class, 'store'])->name('workspaces.store');
+    Route::get('/workspaces', [WorkspaceController::class, 'index'])->name('workspaces');
+    // Route::post('/workspaces', [WorkspaceController::class, 'store'])->name('workspaces.store');
 
     Route::prefix('orgs/{org:slug}')->group(function () {
+        Route::get('/', fn () => redirect()->route('dashboard', ['org' => request()->route('org')]));
+
         Route::get('dashboard', DashboardController::class)->name('dashboard');
         Route::get('tasks', [TaskController::class, 'hub'])->name('tasks.hub');
 

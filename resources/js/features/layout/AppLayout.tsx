@@ -29,11 +29,6 @@ function AppLayoutShell({ children, userName, userEmail, navItems }: Omit<AppLay
 
     return (
         <div className="min-h-full">
-            <AppHeader
-                onOpenSidebar={openSidebar}
-                onToggleDarkMode={toggleDarkMode}
-                onOpenTaskModal={goToTasksHub}
-            />
             <AppSidebar
                 isOpen={isSidebarOpen}
                 onClose={closeSidebar}
@@ -46,6 +41,11 @@ function AppLayoutShell({ children, userName, userEmail, navItems }: Omit<AppLay
             />
 
             <div className="lg:pl-72">
+                <AppHeader
+                    onOpenSidebar={openSidebar}
+                    onToggleDarkMode={toggleDarkMode}
+                    onOpenTaskModal={goToTasksHub}
+                />
                 <main className="px-4 py-6 lg:px-6">{children}</main>
             </div>
         </div>

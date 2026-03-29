@@ -23,10 +23,10 @@ createInertiaApp({
 
                 const navItems: SidebarNavItem[] = [
                     {
-                        href: route('workspaces.index'),
+                        href: route('workspaces'),
                         icon: '🏢',
                         label: 'Workspaces',
-                        isActive: route().current('workspaces.index'),
+                        isActive: route().current('workspaces'),
                     },
                     {
                         href: route('projects.index', tenantSlug),

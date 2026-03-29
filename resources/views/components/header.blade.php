@@ -1,9 +1,14 @@
 <header class="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
       <a href="{{ route('site.home') }}" class="flex items-center gap-3">
-        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-600 text-lg font-bold text-white shadow-soft">
-          T
-        </div>
+        <img
+          src="{{ asset('brand_64x64.png') }}"
+          alt=""
+          width="40"
+          height="40"
+          class="h-10 w-10 shrink-0 rounded-2xl object-contain shadow-soft"
+          aria-hidden="true"
+        />
         <div>
           <div class="text-lg font-bold tracking-tight">TaskForge</div>
           <div class="text-xs text-slate-500">Project & task workspace</div>

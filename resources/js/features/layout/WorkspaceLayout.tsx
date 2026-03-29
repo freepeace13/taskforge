@@ -28,12 +28,12 @@ export default function WorkspaceLayout({ children, onLogoutRequest }: Workspace
             mode="workspace"
             onLogoutRequest={onLogoutRequest}
         >
-            <div className="min-h-full">
+            <div className="flex min-h-screen flex-col">
                 <WorkspaceHeader
                     userName={userName}
                     userEmail={userEmail}
                 />
-                <main className="px-4 py-6 lg:px-6">{children}</main>
+                <main className="container mx-auto flex-1 px-4 py-8">{children}</main>
             </div>
         </LayoutShellProvider>
     );

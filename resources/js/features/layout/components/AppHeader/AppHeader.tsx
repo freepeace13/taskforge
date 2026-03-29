@@ -1,4 +1,5 @@
 import { Button } from '@/features/shared/ui';
+import { BrandMark } from '@/features/layout/components/BrandMark';
 import AppBar, { appBarDesktopToolbarClasses, appBarMobileNavClasses } from '@/features/layout/components/shell/AppBar';
 
 type AppHeaderProps = {
@@ -21,9 +22,12 @@ export default function AppHeader({ onOpenSidebar, onToggleDarkMode, onOpenTaskM
                         ☰
                     </Button>
 
-                    <div className="flex-1">
-                        <div className="text-sm font-bold tracking-tight">TaskForge</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Dashboard</div>
+                    <div className="flex flex-1 items-center gap-3">
+                        <BrandMark className="h-9 w-9 shrink-0 rounded-2xl object-contain" />
+                        <div>
+                            <div className="text-sm font-bold tracking-tight">TaskForge</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">Dashboard</div>
+                        </div>
                     </div>
 
                     <Button
@@ -39,6 +43,7 @@ export default function AppHeader({ onOpenSidebar, onToggleDarkMode, onOpenTaskM
 
             <AppBar className={appBarDesktopToolbarClasses}>
                 <div className="flex items-center gap-3 px-6 py-4">
+                    <BrandMark className="h-9 w-9 shrink-0 rounded-2xl object-contain" />
                     <div className="flex-1">
                         <div className="relative">
                             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">

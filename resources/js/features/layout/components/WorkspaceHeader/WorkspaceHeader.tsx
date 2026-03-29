@@ -1,4 +1,5 @@
 import { Button, Dropdown, DropdownContent, DropdownTrigger, useDropdown } from '@/features/shared/ui';
+import { BrandMark } from '@/features/layout/components/BrandMark';
 import AppBar from '@/features/layout/components/shell/AppBar';
 import { useLayoutContext } from '@/features/layout/context/LayoutContext';
 
@@ -76,9 +77,12 @@ export default function WorkspaceHeader({ userName, userEmail }: WorkspaceHeader
     return (
         <AppBar>
             <div className="flex items-center justify-between px-4 py-3 lg:px-6">
-                <div>
-                    <div className="text-sm font-bold tracking-tight">TaskForge</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Choose a workspace</div>
+                <div className="flex items-center gap-3">
+                    <BrandMark />
+                    <div>
+                        <div className="text-sm font-bold tracking-tight">TaskForge</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Multi-tenant workspace</div>
+                    </div>
                 </div>
 
                 <Dropdown>

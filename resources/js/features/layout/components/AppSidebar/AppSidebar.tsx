@@ -1,4 +1,5 @@
 import { Button, Dropdown, DropdownContent, DropdownTrigger } from '@/features/shared/ui';
+import { BrandMark } from '@/features/layout/components/BrandMark';
 import SideBar from '@/features/layout/components/shell/SideBar';
 import SideBarItem from '@/features/layout/components/shell/SideBarItem';
 
@@ -75,9 +76,12 @@ export default function AppSidebar({
         >
             <div className="flex h-full flex-col">
                 <div className="flex items-center justify-between px-5 py-4">
-                    <div>
-                        <div className="text-base font-bold tracking-tight">TaskForge</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Multi-tenant workspace</div>
+                    <div className="flex min-w-0 items-center gap-3">
+                        <BrandMark />
+                        <div className="min-w-0">
+                            <div className="text-base font-bold tracking-tight">TaskForge</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">Multi-tenant workspace</div>
+                        </div>
                     </div>
 
                     <Button

@@ -25,6 +25,10 @@ class InertiaDashboardTest extends TestCase
                 ->component('Dashboard', false)
                 ->where('organization.slug', $organization->slug)
                 ->where('organization.name', $organization->name)
+                ->where('stats.projects', 12)
+                ->where('stats.openTasks', 34)
+                ->where('stats.completed', 128)
+                ->where('stats.overdue', 3)
         );
     }
 }

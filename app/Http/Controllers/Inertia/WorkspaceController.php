@@ -27,7 +27,7 @@ class WorkspaceController extends Controller
             ->values()
             ->all();
 
-        return Inertia::render('Workspaces/Index', [
+        return Inertia::render('Workspaces', [
             'organizations' => $organizations,
         ]);
     }

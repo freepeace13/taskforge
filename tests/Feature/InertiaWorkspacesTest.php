@@ -27,7 +27,7 @@ class InertiaWorkspacesTest extends TestCase
         $response->assertOk();
         $response->assertInertia(
             fn (Assert $page): Assert => $page
-                ->component('Workspaces/Index', false)
+                ->component('Workspaces', false)
                 ->has('organizations', fn (Assert $orgs): Assert => $orgs
                     ->has(0, fn (Assert $org): Assert => $org
                         ->where('id', $organization->id)

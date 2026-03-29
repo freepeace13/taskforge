@@ -8,6 +8,12 @@ use Laravel\Socialite\Two\User;
 
 class TechysavvyOAuthProvider extends AbstractProvider
 {
+    const TOKEN_ENDPOINT = '/oauth/token';
+
+    const AUTHORIZATION_ENDPOINT = '/oauth/authorize';
+
+    const USER_ENDPOINT = '/api/token/user';
+
     /**
      * Indicates if PKCE should be used.
      *
@@ -15,9 +21,9 @@ class TechysavvyOAuthProvider extends AbstractProvider
      */
     protected $usesPKCE = true;
 
-    protected function serverUrl(): string
+    private function resolveServerUrl($path = null): string
     {
-        return config('services.techysavvy.server_url');
+        return config('services.techysavvy.server_url').($path ? $path : '');
     }
 
     /**
@@ -25,9 +31,9 @@ class TechysavvyOAuthProvider extends AbstractProvider
      */
     protected function getAuthUrl($state): string
     {
-        $baseUrl = $this->serverUrl().'/oauth/authorize';
-
-        return $this->buildAuthUrlFromBase($baseUrl, $state);
+        return $this->buildAuthUrlFromBase(
+            $this->resolveServerUrl(self::AUTHORIZATION_ENDPOINT), $state
+        );
     }
 
     /**
@@ -35,7 +41,7 @@ class TechysavvyOAuthProvider extends AbstractProvider
      */
     protected function getTokenUrl(): string
     {
-        return $this->serverUrl().'/oauth/token';
+        return $this->resolveServerUrl(self::TOKEN_ENDPOINT);
     }
 
     /**
@@ -43,32 +49,24 @@ class TechysavvyOAuthProvider extends AbstractProvider
      */
     protected function getUserByToken($token): array
     {
-        $userUrl = $this->serverUrl().'/api/token/user';
-        $headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'Bearer '.$token,
-        ];
+        $userUrl = $this->resolveServerUrl(self::USER_ENDPOINT);
 
         try {
             $response = $this->getHttpClient()->get($userUrl, [
-                \GuzzleHttp\RequestOptions::HEADERS => $headers,
+                \GuzzleHttp\RequestOptions::HEADERS => [
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Bearer '.$token,
+                ],
             ]);
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             if ($e->getResponse()?->getStatusCode() !== 404) {
                 throw $e;
             }
-
-            $fallbackUrl = $this->serverUrl().'/api/me';
-            $response = $this->getHttpClient()->get($fallbackUrl, [
-                \GuzzleHttp\RequestOptions::HEADERS => $headers,
-            ]);
         }
 
-        return Arr::get(
-            json_decode((string) $response->getBody(), true),
-            'data',
-            [],
-        );
+        $body = json_decode((string) $response->getBody(), true);
+
+        return Arr::get($body, 'data', []);
     }
 
     /**
