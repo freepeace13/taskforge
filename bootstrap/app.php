@@ -1,11 +1,11 @@
 <?php
 
+use App\Http\Middleware\ApiTenancyMiddleware;
 use App\Http\Middleware\HandleInertiaRequests;
-use App\Http\Middleware\TenancyMiddleware;
+use App\Http\Middleware\WebTenancyMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Routing\Middleware\SubstituteBindings;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,11 +15,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectUsersTo(fn () => route('workspaces.index'));
+        $middleware->redirectGuestsTo(fn () => route('site.home'));
+
         $middleware->web(append: [
+            WebTenancyMiddleware::class,
             HandleInertiaRequests::class,
-            TenancyMiddleware::class,
         ]);
-        $middleware->prependToPriorityList(SubstituteBindings::class, TenancyMiddleware::class);
+
+        $middleware->api(append: [
+            ApiTenancyMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

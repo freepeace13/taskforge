@@ -1,4 +1,5 @@
 import { Button } from '@/features/shared/ui';
+import AppBar, { appBarDesktopToolbarClasses, appBarMobileNavClasses } from '@/features/layout/components/shell/AppBar';
 
 type AppHeaderProps = {
     onOpenSidebar: () => void;
@@ -6,14 +7,10 @@ type AppHeaderProps = {
     onOpenTaskModal: () => void;
 };
 
-export default function AppHeader({
-    onOpenSidebar,
-    onToggleDarkMode,
-    onOpenTaskModal,
-}: AppHeaderProps) {
+export default function AppHeader({ onOpenSidebar, onToggleDarkMode, onOpenTaskModal }: AppHeaderProps) {
     return (
         <>
-            <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur dark:border-gray-800 dark:bg-gray-950/70 lg:hidden">
+            <AppBar className={appBarMobileNavClasses}>
                 <div className="flex items-center gap-3 px-4 py-3">
                     <Button
                         variant="secondary"
@@ -38,9 +35,9 @@ export default function AppHeader({
                         🌓
                     </Button>
                 </div>
-            </header>
+            </AppBar>
 
-            <div className="sticky top-0 z-30 hidden border-b border-gray-200 bg-white/70 backdrop-blur dark:border-gray-800 dark:bg-gray-950/60 lg:block">
+            <AppBar className={appBarDesktopToolbarClasses}>
                 <div className="flex items-center gap-3 px-6 py-4">
                     <div className="flex-1">
                         <div className="relative">
@@ -71,8 +68,7 @@ export default function AppHeader({
 
                     <div className="h-9 w-9 rounded-2xl bg-gray-200 dark:bg-gray-800" />
                 </div>
-            </div>
+            </AppBar>
         </>
     );
 }
-

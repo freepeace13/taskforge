@@ -24,7 +24,7 @@ export default function ProjectsEdit({ organization, project }: ProjectsEditProp
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        form.patch(route('projects.update', { project: project.id }));
+        form.patch(route('projects.update', { org: organization.slug, project: project.id }));
     };
 
     return (
@@ -52,7 +52,7 @@ export default function ProjectsEdit({ organization, project }: ProjectsEditProp
                         processingLabel="Saving…"
                         processing={form.processing}
                         cancel={
-                            <Link href={route('projects.show', { project: project.id })} className={projectSecondaryLinkClass}>
+                            <Link href={route('projects.show', { org: organization.slug, project: project.id })} className={projectSecondaryLinkClass}>
                                 Cancel
                             </Link>
                         }

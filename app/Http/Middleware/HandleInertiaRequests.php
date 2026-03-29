@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Data\TenantContext;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -46,6 +47,18 @@ class HandleInertiaRequests extends Middleware
                     ]
                     : null,
             ],
+            'tenantOrganization' => function () use ($request) {
+                if (! $request->user() || ! app()->bound(TenantContext::class)) {
+                    return null;
+                }
+
+                $organization = tenant()->organization;
+
+                return [
+                    'slug' => $organization->slug,
+                    'name' => $organization->name,
+                ];
+            },
             'csrf_token' => csrf_token(),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

@@ -1,9 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { router } from '@inertiajs/react';
-import { route } from 'ziggy-js';
 import { AppHeader, AppSidebar } from '@/features/layout/components';
-import { LayoutProvider, useLayoutContext, type LayoutContextValue } from '@/features/layout/context/LayoutContext';
+import { LayoutShellProvider, useLayoutContext } from '@/features/layout/context/LayoutContext';
 
 type AppLayoutProps = {
     children: ReactNode;
@@ -22,7 +19,13 @@ export type SidebarNavItem = {
 };
 
 function AppLayoutShell({ children, userName, userEmail, navItems }: Omit<AppLayoutProps, 'onLogoutRequest' | 'onNewTaskNavigate'>) {
-    const { openSidebar, closeSidebar, isSidebarOpen, toggleDarkMode, goToTasksHub, logout, isLoggingOut } = useLayoutContext();
+    const { appChrome, toggleDarkMode, logout, isLoggingOut } = useLayoutContext();
+
+    if (!appChrome) {
+        throw new Error('AppLayoutShell must be used with LayoutShellProvider mode="app"');
+    }
+
+    const { openSidebar, closeSidebar, isSidebarOpen, goToTasksHub } = appChrome;
 
     return (
         <div className="min-h-full">
@@ -50,71 +53,12 @@ function AppLayoutShell({ children, userName, userEmail, navItems }: Omit<AppLay
 }
 
 export default function AppLayout({ children, userName, userEmail, navItems, onLogoutRequest, onNewTaskNavigate }: AppLayoutProps) {
-    const [isDark, setIsDark] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-    useEffect(() => {
-        const root = document.documentElement;
-        const savedTheme = window.localStorage.getItem('theme');
-
-        if (savedTheme === 'dark') {
-            root.classList.add('dark');
-            setIsDark(true);
-        } else {
-            root.classList.remove('dark');
-            setIsDark(false);
-        }
-
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                setIsSidebarOpen(false);
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, []);
-
-    const defaultGoToTasksHub = useCallback(() => {
-        router.visit(route('tasks.hub'));
-    }, []);
-
-    const goToTasksHub = onNewTaskNavigate ?? defaultGoToTasksHub;
-
-    const value = useMemo<LayoutContextValue>(
-        () => ({
-            toggleDarkMode: () => {
-                const root = document.documentElement;
-                const nextIsDark = !isDark;
-
-                setIsDark(nextIsDark);
-                root.classList.toggle('dark', nextIsDark);
-                window.localStorage.setItem('theme', nextIsDark ? 'dark' : 'light');
-            },
-            isSidebarOpen,
-            openSidebar: () => setIsSidebarOpen(true),
-            closeSidebar: () => setIsSidebarOpen(false),
-            goToTasksHub,
-            logout: async () => {
-                setIsLoggingOut(true);
-
-                try {
-                    await Promise.resolve(onLogoutRequest());
-                } finally {
-                    setIsLoggingOut(false);
-                }
-            },
-            isLoggingOut,
-        }),
-        [isDark, isSidebarOpen, isLoggingOut, onLogoutRequest, goToTasksHub],
-    );
-
     return (
-        <LayoutProvider value={value}>
+        <LayoutShellProvider
+            mode="app"
+            onLogoutRequest={onLogoutRequest}
+            goToTasksHub={onNewTaskNavigate}
+        >
             <AppLayoutShell
                 userName={userName}
                 userEmail={userEmail}
@@ -122,7 +66,6 @@ export default function AppLayout({ children, userName, userEmail, navItems, onL
             >
                 {children}
             </AppLayoutShell>
-        </LayoutProvider>
+        </LayoutShellProvider>
     );
 }
-

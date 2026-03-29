@@ -19,7 +19,7 @@ class InertiaProjectsTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['tenant_id' => $organization->id])
-            ->get(route('projects.index'));
+            ->get(route('projects.index', ['org' => $organization->slug]));
 
         $response->assertOk();
 

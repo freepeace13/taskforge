@@ -62,4 +62,9 @@ trait InteractsWithTenant
             'Authorization' => 'Bearer test:'.$user->auth_id,
         ]);
     }
+
+    protected function forgetTenantContext(): void
+    {
+        app()->forgetInstance(TenantContext::class);
+    }
 }

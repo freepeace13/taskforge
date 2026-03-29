@@ -23,6 +23,7 @@ export default function TasksEdit({ organization, project, task }: TasksEditProp
         e.preventDefault();
         form.patch(
             route('projects.tasks.update', {
+                org: organization.slug,
                 project: project.id,
                 task: task.id,
             }),
@@ -60,6 +61,7 @@ export default function TasksEdit({ organization, project, task }: TasksEditProp
                     </button>
                     <Link
                         href={route('projects.tasks.show', {
+                            org: organization.slug,
                             project: project.id,
                             task: task.id,
                         })}

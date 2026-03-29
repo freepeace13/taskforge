@@ -75,7 +75,9 @@ class OrganizationApiTest extends TestCase
         $organization = Organization::factory()->create();
         $organization->members()->attach($organization->owner_id, ['role' => Role::Owner->value]);
 
-        // Non-member cannot view (TenancyMiddleware will 404 when member not found)
+        // Non-member cannot view (ApiTenancyMiddleware will 404 when member not found)
+        $this->forgetTenantContext();
+
         $this->actingAsAuthServer($nonMember);
         $this->withHeaders(['x-tenant-id' => (string) $organization->id]);
 

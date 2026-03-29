@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
+use App\Enums\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -11,19 +11,20 @@ class InertiaDashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_inertia_dashboard_route_renders_dashboard_component(): void
+    public function test_dashboard_renders_for_org_member(): void
     {
-        $user = User::factory()->create();
+        [$organization, $user] = $this->createOrganizationWithMember(Role::Owner);
 
-        $response = $this->actingAs($user)->get(route('dashboard'));
+        $response = $this->actingAs($user)
+            ->get(route('dashboard', ['org' => $organization->slug]));
 
         $response->assertOk();
 
         $response->assertInertia(
             fn (Assert $page): Assert => $page
-                ->component('Dashboard')
-                ->has('auth.user')
-                ->has('stats.projects')
+                ->component('Dashboard', false)
+                ->where('organization.slug', $organization->slug)
+                ->where('organization.name', $organization->name)
         );
     }
 }

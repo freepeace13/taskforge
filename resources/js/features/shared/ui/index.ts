@@ -1,6 +1,9 @@
 export { default as Button } from './Button';
 export type { ButtonProps } from './Button';
 
+export { default as Dropdown, DropdownTrigger, DropdownContent, useDropdown } from './Dropdown';
+export type { DropdownProps, DropdownTriggerProps, DropdownContentProps } from './Dropdown';
+
 export { default as FlashMessage } from './FlashMessage';
 export type { FlashMessageProps, FlashMessageVariant } from './FlashMessage';
 

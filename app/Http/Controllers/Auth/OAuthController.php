@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 use Symfony\Component\HttpFoundation\Response;
@@ -70,7 +71,7 @@ class OAuthController extends Controller
 
         Auth::guard(self::GUARD)->login($user, remember: true);
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended(route('workspaces.index'));
     }
 
     /**

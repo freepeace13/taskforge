@@ -11,6 +11,7 @@ return [
     */
     'only' => [
         'dashboard',
+        'workspaces.*',
         'projects.*',
         'tasks.*',
         'projects.tasks.*',

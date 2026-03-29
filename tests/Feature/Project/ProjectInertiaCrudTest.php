@@ -14,13 +14,14 @@ class ProjectInertiaCrudTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_projects_index_redirects_to_task_hub_when_tenant_context_is_missing(): void
+    public function test_projects_index_returns_not_found_when_user_not_member_of_org_in_path(): void
     {
         [, $user] = $this->createOrganizationWithMember(Role::Owner);
+        $otherOrg = Organization::factory()->create();
 
-        $response = $this->actingAs($user)->get(route('projects.index'));
+        $response = $this->actingAs($user)->get(route('projects.index', ['org' => $otherOrg->slug]));
 
-        $response->assertRedirect(route('tasks.hub'));
+        $response->assertNotFound();
     }
 
     public function test_projects_index_renders_paginated_projects_when_session_tenant_is_set(): void
@@ -33,7 +34,7 @@ class ProjectInertiaCrudTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['tenant_id' => $organization->id])
-            ->get(route('projects.index'));
+            ->get(route('projects.index', ['org' => $organization->slug]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -51,7 +52,7 @@ class ProjectInertiaCrudTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['tenant_id' => $organization->id])
-            ->get(route('projects.create'));
+            ->get(route('projects.create', ['org' => $organization->slug]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -67,7 +68,7 @@ class ProjectInertiaCrudTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['tenant_id' => $organization->id])
-            ->post(route('projects.store'), [
+            ->post(route('projects.store', ['org' => $organization->slug]), [
                 'name' => 'New Inertia Project',
                 'description' => 'From feature test',
             ]);
@@ -75,6 +76,7 @@ class ProjectInertiaCrudTest extends TestCase
         $project = Project::query()->where('name', 'New Inertia Project')->firstOrFail();
 
         $response->assertRedirect(route('projects.show', [
+            'org' => $organization->slug,
             'project' => $project->id,
         ]));
     }
@@ -87,6 +89,7 @@ class ProjectInertiaCrudTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get(route('projects.show', [
+            'org' => $organization->slug,
             'project' => $project->id,
         ]));
 
@@ -106,6 +109,7 @@ class ProjectInertiaCrudTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->patch(route('projects.update', [
+            'org' => $organization->slug,
             'project' => $project->id,
         ]), [
             'name' => 'After',
@@ -113,6 +117,7 @@ class ProjectInertiaCrudTest extends TestCase
         ]);
 
         $response->assertRedirect(route('projects.show', [
+            'org' => $organization->slug,
             'project' => $project->id,
         ]));
 
@@ -125,10 +130,11 @@ class ProjectInertiaCrudTest extends TestCase
         $project = Project::factory()->for($organization)->create();
 
         $response = $this->actingAs($user)->delete(route('projects.destroy', [
+            'org' => $organization->slug,
             'project' => $project->id,
         ]));
 
-        $response->assertRedirect(route('projects.index'));
+        $response->assertRedirect(route('projects.index', ['org' => $organization->slug]));
 
         $this->assertSoftDeleted('projects', [
             'id' => $project->id,
@@ -141,7 +147,7 @@ class ProjectInertiaCrudTest extends TestCase
 
         $response = $this->actingAs($user)
             ->withSession(['tenant_id' => $organization->id])
-            ->post(route('projects.store'), [
+            ->post(route('projects.store', ['org' => $organization->slug]), [
                 'name' => 'Blocked',
                 'description' => null,
             ]);
@@ -156,9 +162,10 @@ class ProjectInertiaCrudTest extends TestCase
         $foreignProject = Project::factory()->for($otherOrg)->create();
 
         $response = $this->actingAs($user)->get(route('projects.show', [
+            'org' => $otherOrg->slug,
             'project' => $foreignProject->id,
         ]));
 
-        $response->assertStatus(Response::HTTP_FORBIDDEN);
+        $response->assertNotFound();
     }
 }

@@ -22,7 +22,7 @@ export default function ProjectsCreate({ organization }: ProjectsCreateProps) {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        form.post(route('projects.store'));
+        form.post(route('projects.store', { org: organization.slug }));
     };
 
     return (
@@ -54,7 +54,7 @@ export default function ProjectsCreate({ organization }: ProjectsCreateProps) {
                         processingLabel="Saving…"
                         processing={form.processing}
                         cancel={
-                            <Link href={route('projects.index')} className={projectSecondaryLinkClass}>
+                            <Link href={route('projects.index', { org: organization.slug })} className={projectSecondaryLinkClass}>
                                 Cancel
                             </Link>
                         }

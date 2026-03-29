@@ -48,6 +48,7 @@ export default function TasksHub({ organizations }: TasksHubProps) {
                                             <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{project.name}</span>
                                             <Link
                                                 href={route('projects.tasks.index', {
+                                                    org: org.slug,
                                                     project: project.id,
                                                 })}
                                                 className="text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"

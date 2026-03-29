@@ -8,7 +8,6 @@ use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
-use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 class TaskInertiaCrudTest extends TestCase
@@ -19,7 +18,7 @@ class TaskInertiaCrudTest extends TestCase
     {
         [$organization, $user] = $this->createOrganizationWithMember(Role::Owner);
 
-        $response = $this->actingAs($user)->get(route('tasks.hub'));
+        $response = $this->actingAs($user)->get(route('tasks.hub', ['org' => $organization->slug]));
 
         $response->assertOk();
         $response->assertInertia(
@@ -37,6 +36,7 @@ class TaskInertiaCrudTest extends TestCase
         Task::factory()->for($project)->create(['title' => 'Listed task']);
 
         $response = $this->actingAs($user)->get(route('projects.tasks.index', [
+            'org' => $organization->slug,
             'project' => $project->id,
         ]));
 
@@ -55,6 +55,7 @@ class TaskInertiaCrudTest extends TestCase
         $project = Project::factory()->for($organization)->create();
 
         $response = $this->actingAs($user)->get(route('projects.tasks.create', [
+            'org' => $organization->slug,
             'project' => $project->id,
         ]));
 
@@ -70,6 +71,7 @@ class TaskInertiaCrudTest extends TestCase
         $project = Project::factory()->for($organization)->create();
 
         $response = $this->actingAs($user)->post(route('projects.tasks.store', [
+            'org' => $organization->slug,
             'project' => $project->id,
         ]), [
             'title' => 'New inertia task',
@@ -81,6 +83,7 @@ class TaskInertiaCrudTest extends TestCase
         $this->assertNotNull($task);
 
         $response->assertRedirect(route('projects.tasks.show', [
+            'org' => $organization->slug,
             'project' => $project->id,
             'task' => $task->id,
         ]));
@@ -93,6 +96,7 @@ class TaskInertiaCrudTest extends TestCase
         $task = Task::factory()->for($project)->create(['title' => 'Show me']);
 
         $response = $this->actingAs($user)->get(route('projects.tasks.show', [
+            'org' => $organization->slug,
             'project' => $project->id,
             'task' => $task->id,
         ]));
@@ -112,6 +116,7 @@ class TaskInertiaCrudTest extends TestCase
         $task = Task::factory()->for($project)->create(['title' => 'Old']);
 
         $response = $this->actingAs($user)->patch(route('projects.tasks.update', [
+            'org' => $organization->slug,
             'project' => $project->id,
             'task' => $task->id,
         ]), [
@@ -122,6 +127,7 @@ class TaskInertiaCrudTest extends TestCase
         ]);
 
         $response->assertRedirect(route('projects.tasks.show', [
+            'org' => $organization->slug,
             'project' => $project->id,
             'task' => $task->id,
         ]));
@@ -136,11 +142,13 @@ class TaskInertiaCrudTest extends TestCase
         $task = Task::factory()->for($project)->create();
 
         $response = $this->actingAs($user)->delete(route('projects.tasks.destroy', [
+            'org' => $organization->slug,
             'project' => $project->id,
             'task' => $task->id,
         ]));
 
         $response->assertRedirect(route('projects.tasks.index', [
+            'org' => $organization->slug,
             'project' => $project->id,
         ]));
 
@@ -154,9 +162,10 @@ class TaskInertiaCrudTest extends TestCase
         $projectB = Project::factory()->for($organizationB)->create();
 
         $response = $this->actingAs($member)->get(route('projects.tasks.index', [
+            'org' => $organizationB->slug,
             'project' => $projectB->id,
         ]));
 
-        $response->assertStatus(Response::HTTP_FORBIDDEN);
+        $response->assertNotFound();
     }
 }

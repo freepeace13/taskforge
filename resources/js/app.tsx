@@ -5,6 +5,11 @@ import { createInertiaApp, router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { AppLayout, type SidebarNavItem } from '@/features/layout';
 
+type WorkspaceLayoutProps = {
+    auth?: { user?: { name?: string; email?: string } };
+    tenantOrganization?: { slug: string; name: string } | null;
+};
+
 createInertiaApp({
     resolve: (name) => {
         const pages = import.meta.glob('./pages/**/*.tsx', { eager: true }) as Record<string, any>;
@@ -12,27 +17,37 @@ createInertiaApp({
         page.default.layout =
             page.default.layout ||
             ((currentPage: any) => {
+                const props = currentPage.props as WorkspaceLayoutProps;
                 const currentRouteName = route().current();
-                const tasksNavActive =
-                    currentRouteName === 'tasks.hub' ||
-                    (typeof currentRouteName === 'string' && currentRouteName.startsWith('projects.tasks.'));
-                const projectsNavActive =
-                    typeof currentRouteName === 'string' &&
-                    currentRouteName.startsWith('projects.') &&
-                    !currentRouteName.startsWith('projects.tasks.');
+                const tenantSlug = props.tenantOrganization?.slug;
 
                 const navItems: SidebarNavItem[] = [
-                    { href: route('dashboard'), icon: '🏠', label: 'Dashboard', isActive: route().current('dashboard') },
-                    { href: route('projects.index'), icon: '📁', label: 'Projects', isActive: projectsNavActive },
-                    { href: route('tasks.hub'), icon: '✅', label: 'My Tasks', isActive: tasksNavActive },
+                    {
+                        href: route('workspaces.index'),
+                        icon: '🏢',
+                        label: 'Workspaces',
+                        isActive: route().current('workspaces.index'),
+                    },
+                    {
+                        href: route('projects.index', tenantSlug),
+                        icon: '📁',
+                        label: 'Projects',
+                        isActive: currentRouteName?.startsWith('projects.') ?? false,
+                    },
+                    {
+                        href: route('tasks.hub', tenantSlug),
+                        icon: '✅',
+                        label: 'My Tasks',
+                        isActive: currentRouteName?.startsWith('tasks.') ?? false,
+                    },
                     { href: '#', icon: '👥', label: 'Team' },
                     { href: '#', icon: '🕒', label: 'Activity' },
                 ];
 
                 return (
                     <AppLayout
-                        userName={currentPage.props.auth?.user?.name ?? '-'}
-                        userEmail={currentPage.props.auth?.user?.email ?? '-'}
+                        userName={props.auth?.user?.name ?? '-'}
+                        userEmail={props.auth?.user?.email ?? '-'}
                         navItems={navItems}
                         onLogoutRequest={() =>
                             new Promise<void>((resolve) => {
@@ -42,6 +57,13 @@ createInertiaApp({
                                     },
                                 });
                             })
+                        }
+                        onNewTaskNavigate={
+                            tenantSlug !== undefined
+                                ? () => {
+                                      router.visit(route('tasks.hub', tenantSlug));
+                                  }
+                                : undefined
                         }
                     >
                         {currentPage}

@@ -11,11 +11,11 @@ use App\Http\Controllers\Api\V1\Project\ProjectController;
 use App\Http\Controllers\Api\V1\Task\AssigneeController;
 use App\Http\Controllers\Api\V1\Task\StateController;
 use App\Http\Controllers\Api\V1\Task\TaskController;
-use App\Http\Middleware\TenancyMiddleware;
+use App\Http\Middleware\ApiTenancyMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-    Route::middleware(['auth:techysavvy', TenancyMiddleware::class])->group(function () {
+    Route::middleware(['auth:techysavvy', ApiTenancyMiddleware::class])->group(function () {
         Route::get('me', CurrentUserController::class)->name('api.v1.me');
 
         Route::get('orgs', [OrganizationController::class, 'index'])->name('api.v1.orgs.index');

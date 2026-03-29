@@ -46,7 +46,7 @@ class OrganizationController extends Controller
 
     public function show()
     {
-        $org = tenant()->organization;
+        $org = tenant()->organization->fresh();
 
         $this->authorize('view', $org);
 

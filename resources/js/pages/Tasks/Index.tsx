@@ -25,10 +25,12 @@ export default function TasksIndex({ organization, project, tasks }: TasksIndexP
     const rows: TaskTableRow[] = tasks.data.map((t) => ({
         ...t,
         showUrl: route('projects.tasks.show', {
+            org: organization.slug,
             project: project.id,
             task: t.id,
         }),
         editUrl: route('projects.tasks.edit', {
+            org: organization.slug,
             project: project.id,
             task: t.id,
         }),
@@ -37,6 +39,7 @@ export default function TasksIndex({ organization, project, tasks }: TasksIndexP
     const handleDelete = (taskId: number) => {
         router.delete(
             route('projects.tasks.destroy', {
+                org: organization.slug,
                 project: project.id,
                 task: taskId,
             }),
@@ -58,13 +61,14 @@ export default function TasksIndex({ organization, project, tasks }: TasksIndexP
 
                 <div className="flex flex-wrap items-center gap-2">
                     <Link
-                        href={route('tasks.hub')}
+                        href={route('tasks.hub', { org: organization.slug })}
                         className="inline-flex items-center justify-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
                     >
                         All projects
                     </Link>
                     <Link
                         href={route('projects.tasks.create', {
+                            org: organization.slug,
                             project: project.id,
                         })}
                         className="inline-flex items-center justify-center rounded-2xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/40"

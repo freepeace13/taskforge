@@ -45,7 +45,7 @@ class TaskController extends Controller
         ]);
     }
 
-    public function index(Request $request, Project $project, ListsTasks $listsTasks): InertiaResponse
+    public function index(Organization $org, Project $project, ListsTasks $listsTasks): InertiaResponse
     {
         $this->authorize('viewAny', [Task::class, $project]);
 
@@ -73,7 +73,7 @@ class TaskController extends Controller
         ]);
     }
 
-    public function create(Project $project): InertiaResponse
+    public function create(Organization $org, Project $project): InertiaResponse
     {
         $this->authorize('create', [Task::class, $project]);
 
@@ -91,7 +91,7 @@ class TaskController extends Controller
         ]);
     }
 
-    public function store(StoreTaskRequest $request, Project $project, CreatesTaskAction $action): RedirectResponse
+    public function store(StoreTaskRequest $request, Organization $org, Project $project, CreatesTaskAction $action): RedirectResponse
     {
         $task = $action->create(
             actor: $request->user(),
@@ -105,12 +105,13 @@ class TaskController extends Controller
         );
 
         return redirect()->route('projects.tasks.show', [
+            'org' => $org,
             'project' => $project,
             'task' => $task,
         ])->with('success', __('Task created.'));
     }
 
-    public function show(Project $project, Task $task): InertiaResponse
+    public function show(Organization $org, Project $project, Task $task): InertiaResponse
     {
         $this->authorize('view', $task);
 
@@ -129,7 +130,7 @@ class TaskController extends Controller
         ]);
     }
 
-    public function edit(Project $project, Task $task): InertiaResponse
+    public function edit(Organization $org, Project $project, Task $task): InertiaResponse
     {
         $this->authorize('update', $task);
 
@@ -150,6 +151,7 @@ class TaskController extends Controller
 
     public function update(
         UpdateTaskRequest $request,
+        Organization $org,
         Project $project,
         Task $task,
         UpdatesTaskAction $action
@@ -166,6 +168,7 @@ class TaskController extends Controller
         );
 
         return redirect()->route('projects.tasks.show', [
+            'org' => $org,
             'project' => $project,
             'task' => $task->fresh(),
         ])->with('success', __('Task updated.'));
@@ -173,6 +176,7 @@ class TaskController extends Controller
 
     public function destroy(
         Request $request,
+        Organization $org,
         Project $project,
         Task $task,
         DeletesTaskAction $action
@@ -183,6 +187,7 @@ class TaskController extends Controller
         );
 
         return redirect()->route('projects.tasks.index', [
+            'org' => $org,
             'project' => $project,
         ])->with('success', __('Task deleted.'));
     }

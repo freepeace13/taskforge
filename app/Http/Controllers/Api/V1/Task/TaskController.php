@@ -56,7 +56,7 @@ class TaskController extends Controller
             ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function show(Task $task)
+    public function show(Project $project, Task $task)
     {
         $this->authorize('view', $task);
 
@@ -64,6 +64,7 @@ class TaskController extends Controller
     }
 
     public function update(
+        Project $project,
         Task $task,
         UpdateTaskRequest $request,
         UpdatesTaskAction $action
@@ -83,6 +84,7 @@ class TaskController extends Controller
     }
 
     public function destroy(
+        Project $project,
         Task $task,
         DeletesTaskAction $action
     ) {

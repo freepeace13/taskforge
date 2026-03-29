@@ -1,7 +1,9 @@
 ---
-description: Taskforge multi-tenancy — load the tenancy skill when editing TenantContext, TenancyMiddleware, tenant helpers, or tenant test concerns.
+description: Taskforge multi-tenancy — load the tenancy skill when editing TenantContext, WebTenancyMiddleware, ApiTenancyMiddleware, tenant helpers, or tenant test concerns.
 globs:
-  - app/Http/Middleware/TenancyMiddleware.php
+  - app/Http/Middleware/WebTenancyMiddleware.php
+  - app/Http/Middleware/ApiTenancyMiddleware.php
+  - app/Http/Middleware/Concerns/ResolvesTenantContext.php
   - app/Data/TenantContext.php
   - app/Support/helpers.php
   - tests/Concerns/InteractsWithTenant.php
@@ -12,4 +14,4 @@ alwaysApply: false
 
 When changing tenant resolution, org scoping, or tests that simulate tenants, read and follow `.cursor/skills/tenancy/SKILL.md`.
 
-Key files: `app/Http/Middleware/TenancyMiddleware.php` (resolution order), `app/Data/TenantContext.php`, `app/Providers/AppServiceProvider.php` (route bindings), `tests/Concerns/InteractsWithTenant.php`.
+Key files: `app/Http/Middleware/WebTenancyMiddleware.php` and `ApiTenancyMiddleware.php` (shared `ResolvesTenantContext` trait: org route segment, project, `x-tenant-id`; web also session), `app/Data/TenantContext.php`, `app/Http/Middleware/HandleInertiaRequests.php` (shared `tenantOrganization`), `app/Providers/AppServiceProvider.php` (route bindings), `routes/web.php` (`/orgs/{org}/…` for Inertia), `routes/api.php` (tenant via header), `tests/Concerns/InteractsWithTenant.php`.

@@ -2,6 +2,7 @@
 
 namespace App\Services\Auth;
 
+use Illuminate\Support\Arr;
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\User;
 
@@ -63,9 +64,11 @@ class TechysavvyOAuthProvider extends AbstractProvider
             ]);
         }
 
-        $data = json_decode((string) $response->getBody(), true);
-
-        return is_array($data) ? $data : [];
+        return Arr::get(
+            json_decode((string) $response->getBody(), true),
+            'data',
+            [],
+        );
     }
 
     /**
@@ -73,17 +76,12 @@ class TechysavvyOAuthProvider extends AbstractProvider
      */
     protected function mapUserToObject(array $user): User
     {
-        $tenants = $user['tenants'] ?? $user['organizations'] ?? [];
-        if (! is_array($tenants)) {
-            $tenants = [];
-        }
-
         return (new User)->setRaw($user)->map([
             'id' => $user['id'] ?? null,
             'name' => $user['name'] ?? '',
             'email' => $user['email'] ?? '',
             'email_verified_at' => $user['email_verified_at'] ?? null,
-            'tenants' => $tenants,
+            'tenants' => Arr::get($user, 'tenants', []),
         ]);
     }
 }

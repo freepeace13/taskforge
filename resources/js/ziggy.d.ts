@@ -8,10 +8,97 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
-    "dashboard": [],
-    "projects.index": [],
-    "tasks.hub": [],
+    "dashboard": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        }
+    ],
+    "workspaces.index": [],
+    "workspaces.store": [],
+    "tasks.hub": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        }
+    ],
+    "projects.index": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        }
+    ],
+    "projects.create": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        }
+    ],
+    "projects.store": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        }
+    ],
+    "projects.edit": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        },
+        {
+            "name": "project",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "projects.show": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        },
+        {
+            "name": "project",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "projects.update": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        },
+        {
+            "name": "project",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "projects.destroy": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        },
+        {
+            "name": "project",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "projects.tasks.index": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        },
         {
             "name": "project",
             "required": true,
@@ -20,6 +107,11 @@ declare module 'ziggy-js' {
     ],
     "projects.tasks.create": [
         {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        },
+        {
             "name": "project",
             "required": true,
             "binding": "id"
@@ -27,12 +119,22 @@ declare module 'ziggy-js' {
     ],
     "projects.tasks.store": [
         {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        },
+        {
             "name": "project",
             "required": true,
             "binding": "id"
         }
     ],
     "projects.tasks.edit": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        },
         {
             "name": "project",
             "required": true,
@@ -46,6 +148,11 @@ declare module 'ziggy-js' {
     ],
     "projects.tasks.show": [
         {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        },
+        {
             "name": "project",
             "required": true,
             "binding": "id"
@@ -58,6 +165,11 @@ declare module 'ziggy-js' {
     ],
     "projects.tasks.update": [
         {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        },
+        {
             "name": "project",
             "required": true,
             "binding": "id"
@@ -69,6 +181,11 @@ declare module 'ziggy-js' {
         }
     ],
     "projects.tasks.destroy": [
+        {
+            "name": "org",
+            "required": true,
+            "binding": "slug"
+        },
         {
             "name": "project",
             "required": true,

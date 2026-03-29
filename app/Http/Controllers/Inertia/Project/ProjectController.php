@@ -7,11 +7,11 @@ use App\Contracts\Actions\Project\DeletesProjectAction;
 use App\Contracts\Actions\Project\UpdatesProjectAction;
 use App\Contracts\Queries\Project\ListsProjects;
 use App\Data\ProjectData;
-use App\Data\TenantContext;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
+use App\Models\Organization;
 use App\Models\Project;
 use App\Queries\Project\ListProjectsQuery;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -24,14 +24,8 @@ class ProjectController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Request $request, ListsProjects $listsProjects): InertiaResponse|RedirectResponse
+    public function index(Organization $org, ListsProjects $listsProjects): InertiaResponse
     {
-        if (! app()->bound(TenantContext::class)) {
-            return redirect()->route('tasks.hub');
-        }
-
-        $org = tenant()->organization;
-
         $this->authorize('viewAny', [Project::class, $org]);
 
         $projects = $listsProjects->handle(new ListProjectsQuery(
@@ -53,14 +47,8 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function create(): InertiaResponse|RedirectResponse
+    public function create(Organization $org): InertiaResponse
     {
-        if (! app()->bound(TenantContext::class)) {
-            return redirect()->route('tasks.hub');
-        }
-
-        $org = tenant()->organization;
-
         $this->authorize('create', [Project::class, $org]);
 
         return Inertia::render('Projects/Create', [
@@ -71,14 +59,8 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function store(StoreProjectRequest $request, CreatesProjectAction $action): RedirectResponse
+    public function store(StoreProjectRequest $request, Organization $org, CreatesProjectAction $action): RedirectResponse
     {
-        if (! app()->bound(TenantContext::class)) {
-            return redirect()->route('tasks.hub');
-        }
-
-        $org = tenant()->organization;
-
         $project = $action->create(
             actor: $request->user(),
             organization: $org,
@@ -89,11 +71,12 @@ class ProjectController extends Controller
         );
 
         return redirect()->route('projects.show', [
+            'org' => $org,
             'project' => $project,
         ])->with('success', __('Project created.'));
     }
 
-    public function show(Project $project): InertiaResponse
+    public function show(Organization $org, Project $project): InertiaResponse
     {
         $this->authorize('view', $project);
 
@@ -108,7 +91,7 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function edit(Project $project): InertiaResponse
+    public function edit(Organization $org, Project $project): InertiaResponse
     {
         $this->authorize('update', $project);
 
@@ -125,6 +108,7 @@ class ProjectController extends Controller
 
     public function update(
         UpdateProjectRequest $request,
+        Organization $org,
         Project $project,
         UpdatesProjectAction $action
     ): RedirectResponse {
@@ -138,17 +122,18 @@ class ProjectController extends Controller
         );
 
         return redirect()->route('projects.show', [
+            'org' => $org,
             'project' => $project->fresh(),
         ])->with('success', __('Project updated.'));
     }
 
-    public function destroy(Request $request, Project $project, DeletesProjectAction $action): RedirectResponse
+    public function destroy(Request $request, Organization $org, Project $project, DeletesProjectAction $action): RedirectResponse
     {
         $action->delete(
             actor: $request->user(),
             project: $project
         );
 
-        return redirect()->route('projects.index')->with('success', __('Project deleted.'));
+        return redirect()->route('projects.index', ['org' => $org])->with('success', __('Project deleted.'));
     }
 }

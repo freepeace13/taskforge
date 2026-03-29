@@ -29,13 +29,13 @@ export default function ProjectsShow({ organization, project }: ProjectsShowProp
                 archived={Boolean(project.archived_at)}
                 actions={
                     <>
-                        <Link href={route('projects.index')} className={projectSecondaryLinkClass}>
+                        <Link href={route('projects.index', { org: organization.slug })} className={projectSecondaryLinkClass}>
                             All projects
                         </Link>
-                        <Link href={route('projects.edit', { project: project.id })} className={projectSecondaryLinkClass}>
+                        <Link href={route('projects.edit', { org: organization.slug, project: project.id })} className={projectSecondaryLinkClass}>
                             Edit
                         </Link>
-                        <Link href={route('projects.tasks.index', { project: project.id })} className={projectPrimaryLinkClass}>
+                        <Link href={route('projects.tasks.index', { org: organization.slug, project: project.id })} className={projectPrimaryLinkClass}>
                             Open tasks
                         </Link>
                     </>

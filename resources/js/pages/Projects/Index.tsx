@@ -21,18 +21,18 @@ type ProjectsIndexProps = PageProps & {
     projects: PaginatedProjects;
 };
 
-function buildRows(projects: ProjectAttributes[]): ProjectListRow[] {
+function buildRows(orgSlug: string, projects: ProjectAttributes[]): ProjectListRow[] {
     return projects.map((project) => ({
         project,
         actions: (
             <>
-                <Link href={route('projects.show', { project: project.id })} className={projectTableLinkBrandClass}>
+                <Link href={route('projects.show', { org: orgSlug, project: project.id })} className={projectTableLinkBrandClass}>
                     View
                 </Link>
-                <Link href={route('projects.tasks.index', { project: project.id })} className={projectTableLinkMutedClass}>
+                <Link href={route('projects.tasks.index', { org: orgSlug, project: project.id })} className={projectTableLinkMutedClass}>
                     Tasks
                 </Link>
-                <Link href={route('projects.edit', { project: project.id })} className={projectTableLinkMutedClass}>
+                <Link href={route('projects.edit', { org: orgSlug, project: project.id })} className={projectTableLinkMutedClass}>
                     Edit
                 </Link>
             </>
@@ -45,10 +45,10 @@ export default function ProjectsIndex({ organization, projects }: ProjectsIndexP
         if (!window.confirm('Delete this project? Tasks under it may become inaccessible from this list.')) {
             return;
         }
-        router.delete(route('projects.destroy', { project: projectId }));
+        router.delete(route('projects.destroy', { org: organization.slug, project: projectId }));
     };
 
-    const rows = buildRows(projects.data);
+    const rows = buildRows(organization.slug, projects.data);
 
     return (
         <>
@@ -62,10 +62,10 @@ export default function ProjectsIndex({ organization, projects }: ProjectsIndexP
                 description="Manage and track organization projects."
                 actions={
                     <>
-                        <Link href={route('tasks.hub')} className={projectSecondaryLinkClass}>
+                        <Link href={route('tasks.hub', { org: organization.slug })} className={projectSecondaryLinkClass}>
                             Task hub
                         </Link>
-                        <Link href={route('projects.create')} className={projectPrimaryLinkClass}>
+                        <Link href={route('projects.create', { org: organization.slug })} className={projectPrimaryLinkClass}>
                             + New Project
                         </Link>
                     </>
