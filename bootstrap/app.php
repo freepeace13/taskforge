@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->redirectUsersTo(fn () => route('workspaces.index'));
+        $middleware->redirectUsersTo(fn () => route('workspaces'));
         $middleware->redirectGuestsTo(fn () => route('site.home'));
 
         $middleware->web(append: [

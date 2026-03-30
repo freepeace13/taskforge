@@ -15,8 +15,7 @@ declare module 'ziggy-js' {
             "binding": "slug"
         }
     ],
-    "workspaces.index": [],
-    "workspaces.store": [],
+    "workspaces": [],
     "tasks.hub": [
         {
             "name": "org",

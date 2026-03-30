@@ -13,7 +13,7 @@ class InertiaWorkspacesTest extends TestCase
 
     public function test_guest_is_redirected_from_workspaces_index(): void
     {
-        $response = $this->get(route('workspaces.index'));
+        $response = $this->get(route('workspaces'));
 
         $response->assertRedirect(route('login'));
     }
@@ -22,7 +22,7 @@ class InertiaWorkspacesTest extends TestCase
     {
         [$organization, $user] = $this->createOrganizationWithMember();
 
-        $response = $this->actingAs($user)->get(route('workspaces.index'));
+        $response = $this->actingAs($user)->get(route('workspaces'));
 
         $response->assertOk();
         $response->assertInertia(

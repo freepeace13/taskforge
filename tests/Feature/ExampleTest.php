@@ -19,6 +19,6 @@ class ExampleTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('dashboard'));
 
-        $response->assertRedirect(route('workspaces.index'));
+        $response->assertRedirect(route('workspaces'));
     }
 }
