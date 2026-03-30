@@ -45,7 +45,7 @@ class OAuthController extends Controller
 
         Auth::guard(self::GUARD)->login($user, remember: true);
 
-        return redirect()->intended(route('workspaces.index'));
+        return redirect()->intended(route('workspaces'));
     }
 
     /**
