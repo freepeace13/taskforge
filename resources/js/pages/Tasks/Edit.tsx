@@ -4,10 +4,11 @@ import { route } from 'ziggy-js';
 import { TaskForm } from '@/features/tasks';
 import type { TaskAttributes, TaskFormFields } from '@/features/tasks/types';
 import FlashMessages from '@/components/FlashMessages';
+import { projectRouteParam, taskRouteParam } from '@/utils/routeBindings';
 
 type TasksEditProps = PageProps & {
     organization: { slug: string; name: string };
-    project: { id: number; name: string };
+    project: { id: number; slug?: string | null; name: string };
     task: TaskAttributes;
 };
 
@@ -24,8 +25,8 @@ export default function TasksEdit({ organization, project, task }: TasksEditProp
         form.patch(
             route('projects.tasks.update', {
                 org: organization.slug,
-                project: project.id,
-                task: task.id,
+                project: projectRouteParam(project),
+                task: taskRouteParam(task),
             }),
         );
     };
@@ -62,8 +63,8 @@ export default function TasksEdit({ organization, project, task }: TasksEditProp
                     <Link
                         href={route('projects.tasks.show', {
                             org: organization.slug,
-                            project: project.id,
-                            task: task.id,
+                            project: projectRouteParam(project),
+                            task: taskRouteParam(task),
                         })}
                         className="inline-flex items-center justify-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
                     >

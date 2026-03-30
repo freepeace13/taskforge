@@ -117,10 +117,13 @@ class AppServiceProvider extends ServiceProvider
                 ? fn ($q) => $q->whereKey($org->id)
                 : fn ($q) => $q->where('slug', $org);
 
-            return Project::query()
-                ->whereKey($project)
-                ->whereHas('organization', $orgConstraint)
-                ->firstOrFail();
+            $query = Project::query()->whereHas('organization', $orgConstraint);
+
+            $query = is_numeric($project)
+                ? $query->whereKey((int) $project)
+                : $query->where('slug', $project);
+
+            return $query->firstOrFail();
         });
 
         Route::bind('invite', function ($invite, $route) {
@@ -148,12 +151,16 @@ class AppServiceProvider extends ServiceProvider
             $projectParam = $route->parameter('project');
             $projectId = $projectParam instanceof Project ? $projectParam->id : $projectParam;
 
-            return Task::query()
-                ->whereKey($task)
+            $query = Task::query()
                 ->whereHas('project', function ($q) use ($orgConstraint, $projectId) {
                     $q->whereKey($projectId)->whereHas('organization', $orgConstraint);
-                })
-                ->firstOrFail();
+                });
+
+            $query = is_numeric($task)
+                ? $query->whereKey((int) $task)
+                : $query->where('key', $task);
+
+            return $query->firstOrFail();
         });
 
         Route::bind('comment', function ($comment, $route) {
@@ -164,16 +171,15 @@ class AppServiceProvider extends ServiceProvider
 
             $orgSlug = $org instanceof Organization ? $org->slug : $org;
             $projectId = $project instanceof Project ? $project->getKey() : $project;
-            $taskId = $task instanceof Task ? $task->getKey() : $task;
+            $taskValue = $task instanceof Task ? $task->key : $task;
 
             return Comment::query()
                 ->whereKey($comment)
-                ->whereHas('task', function ($q) use ($orgSlug, $projectId, $taskId) {
-                    $q->whereKey($taskId)
-                        ->whereHas('project', function ($q) use ($orgSlug, $projectId) {
-                            $q->whereKey($projectId)
-                                ->whereHas('organization', fn ($q) => $q->where('slug', $orgSlug));
-                        });
+                ->whereHas('task', function ($q) use ($orgSlug, $projectId, $taskValue) {
+                    $q->where('key', $taskValue)->whereHas('project', function ($q) use ($orgSlug, $projectId) {
+                        $q->whereKey($projectId)
+                            ->whereHas('organization', fn ($q) => $q->where('slug', $orgSlug));
+                    });
                 })
                 ->firstOrFail();
         });

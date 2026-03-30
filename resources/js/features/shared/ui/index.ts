@@ -1,3 +1,24 @@
+export type {
+    SharedUiBaseProps,
+    SharedUiTheme,
+} from './types';
+export {
+    DEFAULT_SHARED_UI_THEME,
+    resolveSharedUiTheme,
+    sharedUiThemeClass,
+} from './types';
+
+export {
+    AppBar,
+    appBarDesktopToolbarClasses,
+    appBarMobileNavClasses,
+    appBarWorkspaceClasses,
+} from './AppBar';
+export type { AppBarProps } from './AppBar';
+
+export { SideBar, SideBarItem } from './SideBar';
+export type { SideBarItemProps, SideBarProps } from './SideBar';
+
 export { default as Button } from './Button';
 export type { ButtonProps } from './Button';
 

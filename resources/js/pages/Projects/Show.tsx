@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { ProjectShowSection, projectPrimaryLinkClass, projectSecondaryLinkClass, type ProjectAttributes } from '@/features/projects';
 import FlashMessages from '@/components/FlashMessages';
+import { projectRouteParam } from '@/utils/routeBindings';
 
 type ProjectsShowProps = PageProps & {
     organization: { slug: string; name: string };
@@ -32,10 +33,10 @@ export default function ProjectsShow({ organization, project }: ProjectsShowProp
                         <Link href={route('projects.index', { org: organization.slug })} className={projectSecondaryLinkClass}>
                             All projects
                         </Link>
-                        <Link href={route('projects.edit', { org: organization.slug, project: project.id })} className={projectSecondaryLinkClass}>
+                        <Link href={route('projects.edit', { org: organization.slug, project: projectRouteParam(project) })} className={projectSecondaryLinkClass}>
                             Edit
                         </Link>
-                        <Link href={route('projects.tasks.index', { org: organization.slug, project: project.id })} className={projectPrimaryLinkClass}>
+                        <Link href={route('projects.tasks.index', { org: organization.slug, project: projectRouteParam(project) })} className={projectPrimaryLinkClass}>
                             Open tasks
                         </Link>
                     </>

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Button } from '@/features/shared/ui';
 import type { ProjectAttributes } from '@/features/projects/types';
+import { projectRouteParam } from '@/utils/routeBindings';
 
 export type ProjectListRow = {
     project: ProjectAttributes;
@@ -10,7 +11,7 @@ export type ProjectListRow = {
 type ProjectsListTableProps = {
     rows: ProjectListRow[];
     emptyMessage: string;
-    onDeleteRequest: (projectId: number) => void;
+    onDeleteRequest: (projectSlug: string) => void;
 };
 
 export default function ProjectsListTable({ rows, emptyMessage, onDeleteRequest }: ProjectsListTableProps) {
@@ -45,7 +46,7 @@ export default function ProjectsListTable({ rows, emptyMessage, onDeleteRequest 
                                     <td className="px-6 py-5 text-right">
                                         <div className="flex flex-wrap items-center justify-end gap-2">
                                             {actions}
-                                            <Button type="button" variant="ghost" size="sm" onClick={() => onDeleteRequest(project.id)}>
+                                            <Button type="button" variant="ghost" size="sm" onClick={() => onDeleteRequest(String(projectRouteParam(project)))}>
                                                 Delete
                                             </Button>
                                         </div>

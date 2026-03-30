@@ -1,3 +1,6 @@
+import { useAuth } from '@/features/shared/context/AuthContext';
+import { router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import type { ReactElement, ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
@@ -10,7 +13,6 @@ export type AppChromeValue = {
 };
 
 export type LayoutContextValue = {
-    toggleDarkMode: () => void;
     logout: () => Promise<void>;
     isLoggingOut: boolean;
     /** Present only when `LayoutShellProvider` is used with `mode="app"`. */
@@ -20,9 +22,6 @@ export type LayoutContextValue = {
 type LayoutShellProviderProps = {
     children: ReactNode;
     mode: 'app' | 'workspace';
-    onLogoutRequest: () => Promise<void> | void;
-    /** When `mode` is `app`, optional handler for the tasks hub action; defaults to a no-op. */
-    goToTasksHub?: () => void;
 };
 
 const LayoutContext = createContext<LayoutContextValue | undefined>(undefined);
@@ -30,25 +29,10 @@ const LayoutContext = createContext<LayoutContextValue | undefined>(undefined);
 export function LayoutShellProvider({
     children,
     mode,
-    onLogoutRequest,
-    goToTasksHub,
 }: LayoutShellProviderProps): ReactElement {
-    const [isDark, setIsDark] = useState(false);
+    const { logout: onLogoutRequest, tenant } = useAuth();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    useEffect(() => {
-        const root = document.documentElement;
-        const savedTheme = window.localStorage.getItem('theme');
-
-        if (savedTheme === 'dark') {
-            root.classList.add('dark');
-            setIsDark(true);
-        } else {
-            root.classList.remove('dark');
-            setIsDark(false);
-        }
-    }, []);
 
     useEffect(() => {
         if (mode !== 'app') {
@@ -68,15 +52,6 @@ export function LayoutShellProvider({
         };
     }, [mode]);
 
-    const toggleDarkMode = useCallback(() => {
-        const root = document.documentElement;
-        const nextIsDark = !isDark;
-
-        setIsDark(nextIsDark);
-        root.classList.toggle('dark', nextIsDark);
-        window.localStorage.setItem('theme', nextIsDark ? 'dark' : 'light');
-    }, [isDark]);
-
     const logout = useCallback(async () => {
         setIsLoggingOut(true);
 
@@ -87,6 +62,14 @@ export function LayoutShellProvider({
         }
     }, [onLogoutRequest]);
 
+    const goToTasksHub = useCallback(() => {
+        if (!tenant?.slug) {
+            return;
+        }
+
+        router.visit(route('tasks.hub', tenant.slug));
+    }, [tenant?.slug]);
+
     const appChrome = useMemo<AppChromeValue | null>(() => {
         if (mode !== 'app') {
             return null;
@@ -96,18 +79,17 @@ export function LayoutShellProvider({
             isSidebarOpen,
             openSidebar: () => setIsSidebarOpen(true),
             closeSidebar: () => setIsSidebarOpen(false),
-            goToTasksHub: goToTasksHub ?? (() => {}),
+            goToTasksHub,
         };
     }, [mode, goToTasksHub, isSidebarOpen]);
 
     const value = useMemo<LayoutContextValue>(
         () => ({
-            toggleDarkMode,
             logout,
             isLoggingOut,
             appChrome,
         }),
-        [toggleDarkMode, logout, isLoggingOut, appChrome],
+        [logout, isLoggingOut, appChrome],
     );
 
     return <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>;

@@ -15,6 +15,7 @@ class ListTasksQueryHandler implements ListsTasks
         return Project::query()
             ->findOrFail($query->projectId)
             ->tasks()
+            ->with('members')
             ->latest('id')
             ->paginate($perPage);
     }

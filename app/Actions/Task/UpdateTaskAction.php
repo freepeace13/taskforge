@@ -16,12 +16,23 @@ class UpdateTaskAction implements UpdatesTaskContract
     {
         $this->authorizeForUser($actor, 'update', $task);
 
+        $status = $data->status ?? $task->status;
+        $completedAt = $status === 'done'
+            ? ($task->completed_at ?? now())
+            : null;
+
         $task->update([
             'title' => $data->title,
-            'description' => $data->description ?? $task->description,
-            'priority' => $data->priority ?? $task->priority,
-            'due_date' => $data->dueDate ?? $task->due_date,
+            'description' => $data->description,
+            'priority' => $data->priority,
+            'due_date' => $data->dueDate,
+            'status' => $status,
+            'completed_at' => $completedAt,
         ]);
+
+        if ($data->memberIds !== null) {
+            $task->members()->sync($data->memberIds);
+        }
 
         return $task;
     }

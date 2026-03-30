@@ -9,6 +9,8 @@ import {
     useState,
 } from 'react';
 import type { ButtonHTMLAttributes, ReactNode, RefObject } from 'react';
+import type { SharedUiBaseProps, SharedUiTheme } from '@/features/shared/ui/types';
+import { resolveSharedUiTheme } from '@/features/shared/ui/types';
 
 type DropdownAlign = 'start' | 'end' | 'full';
 
@@ -17,6 +19,7 @@ type DropdownContextValue = {
     setOpen: (next: boolean) => void;
     menuId: string;
     containerRef: RefObject<HTMLDivElement | null>;
+    theme: SharedUiTheme;
 };
 
 const DropdownContext = createContext<DropdownContextValue | null>(null);
@@ -39,7 +42,7 @@ export function useDropdown(): DropdownContextValue {
     return useDropdownContext('useDropdown');
 }
 
-export interface DropdownProps {
+export interface DropdownProps extends SharedUiBaseProps {
     children: ReactNode;
     className?: string;
     defaultOpen?: boolean;
@@ -53,6 +56,7 @@ export default function Dropdown({
     defaultOpen = false,
     open: openControlled,
     onOpenChange,
+    theme,
 }: DropdownProps) {
     const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
     const isControlled = openControlled !== undefined;
@@ -71,6 +75,7 @@ export default function Dropdown({
 
     const containerRef = useRef<HTMLDivElement>(null);
     const menuId = useId();
+    const resolvedTheme = resolveSharedUiTheme(theme);
 
     useEffect(() => {
         if (!open) {
@@ -106,8 +111,9 @@ export default function Dropdown({
             setOpen,
             menuId,
             containerRef,
+            theme: resolvedTheme,
         }),
-        [open, setOpen, menuId],
+        [open, setOpen, menuId, resolvedTheme],
     );
 
     return (
@@ -147,7 +153,7 @@ export function DropdownTrigger({ type = 'button', onClick, ...props }: Dropdown
     );
 }
 
-export interface DropdownContentProps {
+export interface DropdownContentProps extends SharedUiBaseProps {
     children: ReactNode;
     className?: string;
     align?: DropdownAlign;
@@ -160,19 +166,26 @@ const alignClasses: Record<DropdownAlign, string> = {
     full: 'left-0 right-0',
 };
 
+const panelByTheme: Record<SharedUiTheme, string> = {
+    light: 'absolute z-50 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg',
+    dark: 'absolute z-50 mt-2 overflow-hidden rounded-2xl border border-gray-800 bg-gray-900 shadow-lg',
+};
+
 export function DropdownContent({
     children,
     className = '',
     align = 'end',
     menuLabel,
+    theme,
 }: DropdownContentProps) {
-    const { open, menuId } = useDropdownContext('DropdownContent');
+    const { open, menuId, theme: parentTheme } = useDropdownContext('DropdownContent');
 
     if (!open) {
         return null;
     }
 
     const positionClass = alignClasses[align];
+    const t = resolveSharedUiTheme(theme ?? parentTheme);
 
     return (
         <div
@@ -180,7 +193,7 @@ export function DropdownContent({
             role="menu"
             aria-label={menuLabel}
             className={[
-                'absolute z-50 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-900',
+                panelByTheme[t],
                 positionClass,
                 className,
             ]

@@ -1,10 +1,11 @@
 import { Link } from '@inertiajs/react';
 import { Button } from '@/features/shared/ui';
 import type { TaskTableRow } from '@/features/tasks/types';
+import { taskRouteParam } from '@/utils/routeBindings';
 
 export type TaskTableProps = {
     rows: TaskTableRow[];
-    onDelete: (taskId: number) => void;
+    onDelete: (taskRouteKey: string | number) => void;
 };
 
 export default function TaskTable({ rows, onDelete }: TaskTableProps) {
@@ -32,7 +33,7 @@ export default function TaskTable({ rows, onDelete }: TaskTableProps) {
                     {rows.map((row) => (
                         <tr key={row.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-950/50">
                             <td className="px-5 py-3 font-medium text-gray-900 dark:text-gray-100">
-                                <Link href={row.showUrl} className="hover:text-brand-600 dark:hover:text-brand-400">
+                                <Link href={row.previewUrl} className="hover:text-brand-600 dark:hover:text-brand-400">
                                     {row.title}
                                 </Link>
                             </td>
@@ -42,10 +43,16 @@ export default function TaskTable({ rows, onDelete }: TaskTableProps) {
                             <td className="px-5 py-3">
                                 <div className="flex flex-wrap justify-end gap-2">
                                     <Link
-                                        href={row.showUrl}
+                                        href={row.previewUrl}
                                         className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-900 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
                                     >
                                         View
+                                    </Link>
+                                    <Link
+                                        href={row.showUrl}
+                                        className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-900 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500/30 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
+                                    >
+                                        Full page
                                     </Link>
                                     <Link
                                         href={row.editUrl}
@@ -59,7 +66,7 @@ export default function TaskTable({ rows, onDelete }: TaskTableProps) {
                                         size="sm"
                                         onClick={() => {
                                             if (window.confirm('Delete this task?')) {
-                                                onDelete(row.id);
+                                                onDelete(taskRouteParam(row));
                                             }
                                         }}
                                     >

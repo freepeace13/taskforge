@@ -40,16 +40,22 @@ class TaskController extends Controller
 
     public function store(Project $project, StoreTaskRequest $request, CreatesTaskAction $action)
     {
+        $validated = $request->validated();
+
         $task = $action->create(
             actor: $request->user(),
             project: $project,
             data: new TaskData(
-                title: $request->title,
-                description: $request->description,
-                priority: $request->priority,
-                dueDate: $request->due_date
+                title: $validated['title'],
+                description: $validated['description'] ?? null,
+                priority: $validated['priority'] ?? null,
+                dueDate: $validated['due_date'] ?? null,
+                status: null,
+                memberIds: $validated['member_ids'] ?? null,
             )
         );
+
+        $task->loadMissing('members');
 
         return (new TaskResource($task))
             ->response()
@@ -60,6 +66,8 @@ class TaskController extends Controller
     {
         $this->authorize('view', $task);
 
+        $task->loadMissing('members');
+
         return new TaskResource($task);
     }
 
@@ -69,16 +77,16 @@ class TaskController extends Controller
         UpdateTaskRequest $request,
         UpdatesTaskAction $action
     ) {
+        $validated = $request->validated();
+        unset($validated['redirect_to_board'], $validated['redirect_back']);
+
         $updated = $action->update(
             actor: $request->user(),
             task: $task,
-            data: new TaskData(
-                title: $request->title,
-                description: $request->description,
-                priority: $request->priority,
-                dueDate: $request->due_date
-            ),
+            data: TaskData::mergeForUpdate($task, $validated),
         );
+
+        $updated->loadMissing('members');
 
         return new TaskResource($updated);
     }

@@ -15,6 +15,7 @@ import {
     type ProjectAttributes,
 } from '@/features/projects';
 import FlashMessages from '@/components/FlashMessages';
+import { projectRouteParam } from '@/utils/routeBindings';
 
 type ProjectsIndexProps = PageProps & {
     organization: { slug: string; name: string };
@@ -26,13 +27,13 @@ function buildRows(orgSlug: string, projects: ProjectAttributes[]): ProjectListR
         project,
         actions: (
             <>
-                <Link href={route('projects.show', { org: orgSlug, project: project.id })} className={projectTableLinkBrandClass}>
+                <Link href={route('projects.show', { org: orgSlug, project: projectRouteParam(project) })} className={projectTableLinkBrandClass}>
                     View
                 </Link>
-                <Link href={route('projects.tasks.index', { org: orgSlug, project: project.id })} className={projectTableLinkMutedClass}>
+                <Link href={route('projects.tasks.index', { org: orgSlug, project: projectRouteParam(project) })} className={projectTableLinkMutedClass}>
                     Tasks
                 </Link>
-                <Link href={route('projects.edit', { org: orgSlug, project: project.id })} className={projectTableLinkMutedClass}>
+                <Link href={route('projects.edit', { org: orgSlug, project: projectRouteParam(project) })} className={projectTableLinkMutedClass}>
                     Edit
                 </Link>
             </>
@@ -41,11 +42,11 @@ function buildRows(orgSlug: string, projects: ProjectAttributes[]): ProjectListR
 }
 
 export default function ProjectsIndex({ organization, projects }: ProjectsIndexProps) {
-    const handleDelete = (projectId: number) => {
+    const handleDelete = (projectSlug: string) => {
         if (!window.confirm('Delete this project? Tasks under it may become inaccessible from this list.')) {
             return;
         }
-        router.delete(route('projects.destroy', { org: organization.slug, project: projectId }));
+        router.delete(route('projects.destroy', { org: organization.slug, project: projectSlug }));
     };
 
     const rows = buildRows(organization.slug, projects.data);

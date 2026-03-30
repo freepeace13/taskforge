@@ -1,16 +1,41 @@
 import type { PageProps } from '@inertiajs/core';
 import { Head, Link, router } from '@inertiajs/react';
+import { useCallback, useState } from 'react';
 import { route } from 'ziggy-js';
-import type { TaskAttributes } from '@/features/tasks/types';
+import type { TaskAttributes, TaskMember } from '@/features/tasks/types';
+import { TaskDetailsContent } from '@/features/tasks';
 import FlashMessages from '@/components/FlashMessages';
+import { projectRouteParam, taskRouteParam } from '@/utils/routeBindings';
 
 type TasksShowProps = PageProps & {
     organization: { slug: string; name: string };
-    project: { id: number; name: string };
+    project: { id: number; slug?: string | null; name: string };
     task: TaskAttributes;
+    organizationMembers: TaskMember[];
 };
 
-export default function TasksShow({ organization, project, task }: TasksShowProps) {
+export default function TasksShow({ organization, project, task, organizationMembers }: TasksShowProps) {
+    const [membersSaving, setMembersSaving] = useState(false);
+
+    const handleMembersChange = useCallback(
+        (memberIds: number[]) => {
+            setMembersSaving(true);
+            router.patch(
+                route('projects.tasks.update', {
+                    org: organization.slug,
+                    project: projectRouteParam(project),
+                    task: taskRouteParam(task),
+                }),
+                { member_ids: memberIds, redirect_back: true },
+                {
+                    preserveScroll: true,
+                    only: ['task', 'organizationMembers'],
+                    onFinish: () => setMembersSaving(false),
+                },
+            );
+        },
+        [organization.slug, project, task],
+    );
     const destroy = () => {
         if (!window.confirm('Delete this task?')) {
             return;
@@ -19,8 +44,8 @@ export default function TasksShow({ organization, project, task }: TasksShowProp
         router.delete(
             route('projects.tasks.destroy', {
                 org: organization.slug,
-                project: project.id,
-                task: task.id,
+                project: projectRouteParam(project),
+                task: taskRouteParam(task),
             }),
         );
     };
@@ -36,7 +61,12 @@ export default function TasksShow({ organization, project, task }: TasksShowProp
                     <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                         {organization.name} · {project.name}
                     </p>
-                    <h1 className="text-xl font-bold tracking-tight">{task.title}</h1>
+                    <h1 className="text-xl font-bold tracking-tight">
+                        {task.key ? (
+                            <span className="mr-2 font-mono text-base text-gray-500 dark:text-gray-400">{task.key}</span>
+                        ) : null}
+                        {task.title}
+                    </h1>
                     <p className="mt-2 text-sm capitalize text-gray-600 dark:text-gray-300">
                         {task.status.replace('_', ' ')}
                         {task.priority ? ` · ${task.priority} priority` : ''}
@@ -47,7 +77,7 @@ export default function TasksShow({ organization, project, task }: TasksShowProp
                     <Link
                         href={route('projects.tasks.index', {
                             org: organization.slug,
-                            project: project.id,
+                            project: projectRouteParam(project),
                         })}
                         className="inline-flex items-center justify-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
                     >
@@ -56,8 +86,8 @@ export default function TasksShow({ organization, project, task }: TasksShowProp
                     <Link
                         href={route('projects.tasks.edit', {
                             org: organization.slug,
-                            project: project.id,
-                            task: task.id,
+                            project: projectRouteParam(project),
+                            task: taskRouteParam(task),
                         })}
                         className="inline-flex items-center justify-center rounded-2xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
                     >
@@ -73,24 +103,12 @@ export default function TasksShow({ organization, project, task }: TasksShowProp
                 </div>
             </div>
 
-            <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                {task.description ? (
-                    <p className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-200">{task.description}</p>
-                ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">No description.</p>
-                )}
-
-                <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
-                    <div>
-                        <dt className="font-semibold text-gray-500 dark:text-gray-400">Due date</dt>
-                        <dd className="text-gray-900 dark:text-gray-100">{task.due_date ?? '—'}</dd>
-                    </div>
-                    <div>
-                        <dt className="font-semibold text-gray-500 dark:text-gray-400">Completed</dt>
-                        <dd className="text-gray-900 dark:text-gray-100">{task.completed_at ?? '—'}</dd>
-                    </div>
-                </dl>
-            </div>
+            <TaskDetailsContent
+                task={task}
+                organizationMembers={organizationMembers}
+                onMembersChange={handleMembersChange}
+                membersSaving={membersSaving}
+            />
         </>
     );
 }

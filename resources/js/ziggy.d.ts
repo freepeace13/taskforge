@@ -53,7 +53,7 @@ declare module 'ziggy-js' {
         {
             "name": "project",
             "required": true,
-            "binding": "id"
+            "binding": "slug"
         }
     ],
     "projects.show": [
@@ -65,7 +65,7 @@ declare module 'ziggy-js' {
         {
             "name": "project",
             "required": true,
-            "binding": "id"
+            "binding": "slug"
         }
     ],
     "projects.update": [
@@ -77,7 +77,7 @@ declare module 'ziggy-js' {
         {
             "name": "project",
             "required": true,
-            "binding": "id"
+            "binding": "slug"
         }
     ],
     "projects.destroy": [
@@ -89,7 +89,7 @@ declare module 'ziggy-js' {
         {
             "name": "project",
             "required": true,
-            "binding": "id"
+            "binding": "slug"
         }
     ],
     "projects.tasks.index": [
@@ -101,7 +101,7 @@ declare module 'ziggy-js' {
         {
             "name": "project",
             "required": true,
-            "binding": "id"
+            "binding": "slug"
         }
     ],
     "projects.tasks.create": [
@@ -113,7 +113,7 @@ declare module 'ziggy-js' {
         {
             "name": "project",
             "required": true,
-            "binding": "id"
+            "binding": "slug"
         }
     ],
     "projects.tasks.store": [
@@ -125,7 +125,7 @@ declare module 'ziggy-js' {
         {
             "name": "project",
             "required": true,
-            "binding": "id"
+            "binding": "slug"
         }
     ],
     "projects.tasks.edit": [
@@ -137,12 +137,12 @@ declare module 'ziggy-js' {
         {
             "name": "project",
             "required": true,
-            "binding": "id"
+            "binding": "slug"
         },
         {
             "name": "task",
             "required": true,
-            "binding": "id"
+            "binding": "key"
         }
     ],
     "projects.tasks.show": [
@@ -154,12 +154,12 @@ declare module 'ziggy-js' {
         {
             "name": "project",
             "required": true,
-            "binding": "id"
+            "binding": "slug"
         },
         {
             "name": "task",
             "required": true,
-            "binding": "id"
+            "binding": "key"
         }
     ],
     "projects.tasks.update": [
@@ -171,12 +171,12 @@ declare module 'ziggy-js' {
         {
             "name": "project",
             "required": true,
-            "binding": "id"
+            "binding": "slug"
         },
         {
             "name": "task",
             "required": true,
-            "binding": "id"
+            "binding": "key"
         }
     ],
     "projects.tasks.destroy": [
@@ -188,12 +188,12 @@ declare module 'ziggy-js' {
         {
             "name": "project",
             "required": true,
-            "binding": "id"
+            "binding": "slug"
         },
         {
             "name": "task",
             "required": true,
-            "binding": "id"
+            "binding": "key"
         }
     ]
 }

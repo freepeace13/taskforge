@@ -12,6 +12,17 @@ class TaskResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        $data = parent::toArray($request);
+        $data['key'] = $this->key;
+
+        if ($this->relationLoaded('members')) {
+            $data['members'] = $this->members->map(fn ($user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ])->values()->all();
+        }
+
+        return $data;
     }
 }

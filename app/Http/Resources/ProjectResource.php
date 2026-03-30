@@ -12,6 +12,10 @@ class ProjectResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        $data = parent::toArray($request);
+        $data['slug'] = $this->slug;
+        $data['abbrev'] = $this->abbrev;
+
+        return $data;
     }
 }

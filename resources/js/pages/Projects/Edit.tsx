@@ -10,6 +10,7 @@ import {
     type ProjectAttributes,
 } from '@/features/projects';
 import FlashMessages from '@/components/FlashMessages';
+import { projectRouteParam } from '@/utils/routeBindings';
 
 type ProjectsEditProps = PageProps & {
     organization: { slug: string; name: string };
@@ -24,7 +25,7 @@ export default function ProjectsEdit({ organization, project }: ProjectsEditProp
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        form.patch(route('projects.update', { org: organization.slug, project: project.id }));
+        form.patch(route('projects.update', { org: organization.slug, project: projectRouteParam(project) }));
     };
 
     return (
@@ -52,7 +53,7 @@ export default function ProjectsEdit({ organization, project }: ProjectsEditProp
                         processingLabel="Saving…"
                         processing={form.processing}
                         cancel={
-                            <Link href={route('projects.show', { org: organization.slug, project: project.id })} className={projectSecondaryLinkClass}>
+                            <Link href={route('projects.show', { org: organization.slug, project: projectRouteParam(project) })} className={projectSecondaryLinkClass}>
                                 Cancel
                             </Link>
                         }

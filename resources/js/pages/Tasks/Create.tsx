@@ -4,10 +4,11 @@ import { route } from 'ziggy-js';
 import { TaskForm } from '@/features/tasks';
 import type { TaskFormFields } from '@/features/tasks/types';
 import FlashMessages from '@/components/FlashMessages';
+import { projectRouteParam } from '@/utils/routeBindings';
 
 type TasksCreateProps = PageProps & {
     organization: { slug: string; name: string };
-    project: { id: number; name: string };
+    project: { id: number; slug?: string | null; name: string };
 };
 
 export default function TasksCreate({ organization, project }: TasksCreateProps) {
@@ -23,7 +24,7 @@ export default function TasksCreate({ organization, project }: TasksCreateProps)
         form.post(
             route('projects.tasks.store', {
                 org: organization.slug,
-                project: project.id,
+                project: projectRouteParam(project),
             }),
         );
     };
@@ -58,7 +59,7 @@ export default function TasksCreate({ organization, project }: TasksCreateProps)
                     <Link
                         href={route('projects.tasks.index', {
                             org: organization.slug,
-                            project: project.id,
+                            project: projectRouteParam(project),
                         })}
                         className="inline-flex items-center justify-center rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
                     >

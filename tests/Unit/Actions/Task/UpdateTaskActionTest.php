@@ -53,6 +53,39 @@ class UpdateTaskActionTest extends TestCase
         $this->assertSame('low', $updated->priority);
     }
 
+    public function test_syncs_task_members_when_member_ids_provided(): void
+    {
+        $organization = Organization::factory()->create();
+        $project = Project::factory()->for($organization)->create();
+        $actor = User::factory()->create();
+        $member = User::factory()->create();
+
+        OrganizationMember::query()->create([
+            'organization_id' => $organization->id,
+            'user_id' => $actor->id,
+            'role' => Role::Member->value,
+        ]);
+        OrganizationMember::query()->create([
+            'organization_id' => $organization->id,
+            'user_id' => $member->id,
+            'role' => Role::Member->value,
+        ]);
+
+        $task = Task::factory()->for($project)->create([
+            'title' => 'Old',
+        ]);
+
+        $action = app(UpdateTaskAction::class);
+
+        $action->update(
+            actor: $actor,
+            task: $task,
+            data: TaskData::mergeForUpdate($task, ['member_ids' => [$member->id]]),
+        );
+
+        $this->assertTrue($task->fresh()->members()->whereKey($member->id)->exists());
+    }
+
     public function test_denies_non_member(): void
     {
         $organization = Organization::factory()->create();

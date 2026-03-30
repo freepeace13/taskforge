@@ -39,13 +39,14 @@ class TaskController extends Controller
                 'name' => $org->name,
                 'projects' => $org->projects->map(fn (Project $project) => [
                     'id' => $project->id,
+                    'slug' => $project->slug,
                     'name' => $project->name,
                 ]),
             ]),
         ]);
     }
 
-    public function index(Organization $org, Project $project, ListsTasks $listsTasks): InertiaResponse
+    public function index(Request $request, Organization $org, Project $project, ListsTasks $listsTasks): InertiaResponse
     {
         $this->authorize('viewAny', [Task::class, $project]);
 
@@ -60,6 +61,36 @@ class TaskController extends Controller
             $tasks->getCollection()->map(fn (Task $task) => (new TaskResource($task))->resolve())
         );
 
+        $taskPreview = null;
+        $previewKey = $request->query('task');
+        if (is_string($previewKey) && $previewKey !== '') {
+            $previewTask = Task::query()
+                ->where('project_id', $project->id)
+                ->where(function ($query) use ($previewKey): void {
+                    $query->where('key', $previewKey);
+                    if (ctype_digit($previewKey)) {
+                        $query->orWhere('id', (int) $previewKey);
+                    }
+                })
+                ->with('members')
+                ->first();
+
+            if ($previewTask !== null && $request->user()->can('view', $previewTask)) {
+                $taskPreview = (new TaskResource($previewTask))->resolve();
+            }
+        }
+
+        $organizationMembers = $organization->members()
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ])
+            ->values()
+            ->all();
+
         return Inertia::render('Tasks/Index', [
             'organization' => [
                 'slug' => $organization->slug,
@@ -67,9 +98,12 @@ class TaskController extends Controller
             ],
             'project' => [
                 'id' => $project->id,
+                'slug' => $project->slug,
                 'name' => $project->name,
             ],
             'tasks' => $tasks,
+            'taskPreview' => $taskPreview,
+            'organizationMembers' => $organizationMembers,
         ]);
     }
 
@@ -86,6 +120,7 @@ class TaskController extends Controller
             ],
             'project' => [
                 'id' => $project->id,
+                'slug' => $project->slug,
                 'name' => $project->name,
             ],
         ]);
@@ -93,14 +128,18 @@ class TaskController extends Controller
 
     public function store(StoreTaskRequest $request, Organization $org, Project $project, CreatesTaskAction $action): RedirectResponse
     {
+        $validated = $request->validated();
+
         $task = $action->create(
             actor: $request->user(),
             project: $project,
             data: new TaskData(
-                title: $request->title,
-                description: $request->description,
-                priority: $request->priority,
-                dueDate: $request->due_date
+                title: $validated['title'],
+                description: $validated['description'] ?? null,
+                priority: $validated['priority'] ?? null,
+                dueDate: $validated['due_date'] ?? null,
+                status: null,
+                memberIds: $validated['member_ids'] ?? null,
             )
         );
 
@@ -117,6 +156,19 @@ class TaskController extends Controller
 
         $organization = $project->organization;
 
+        $task->loadMissing('members');
+
+        $organizationMembers = $organization->members()
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ])
+            ->values()
+            ->all();
+
         return Inertia::render('Tasks/Show', [
             'organization' => [
                 'slug' => $organization->slug,
@@ -124,9 +176,11 @@ class TaskController extends Controller
             ],
             'project' => [
                 'id' => $project->id,
+                'slug' => $project->slug,
                 'name' => $project->name,
             ],
             'task' => (new TaskResource($task))->resolve(),
+            'organizationMembers' => $organizationMembers,
         ]);
     }
 
@@ -136,6 +190,8 @@ class TaskController extends Controller
 
         $organization = $project->organization;
 
+        $task->loadMissing('members');
+
         return Inertia::render('Tasks/Edit', [
             'organization' => [
                 'slug' => $organization->slug,
@@ -143,6 +199,7 @@ class TaskController extends Controller
             ],
             'project' => [
                 'id' => $project->id,
+                'slug' => $project->slug,
                 'name' => $project->name,
             ],
             'task' => (new TaskResource($task))->resolve(),
@@ -156,21 +213,35 @@ class TaskController extends Controller
         Task $task,
         UpdatesTaskAction $action
     ): RedirectResponse {
+        $validated = $request->validated();
+        $redirectToBoard = $validated['redirect_to_board'] ?? false;
+        $redirectBack = $validated['redirect_back'] ?? false;
+        unset($validated['redirect_to_board'], $validated['redirect_back']);
+
         $action->update(
             actor: $request->user(),
             task: $task,
-            data: new TaskData(
-                title: $request->input('title'),
-                description: $request->input('description'),
-                priority: $request->input('priority'),
-                dueDate: $request->input('due_date')
-            ),
+            data: TaskData::mergeForUpdate($task, $validated),
         );
+
+        $freshTask = $task->fresh();
+
+        if ($redirectToBoard) {
+            return redirect()->route('projects.tasks.index', [
+                'org' => $org,
+                'project' => $project,
+                'view' => 'board',
+            ])->with('success', __('Task updated.'));
+        }
+
+        if ($redirectBack) {
+            return back()->with('success', __('Task updated.'));
+        }
 
         return redirect()->route('projects.tasks.show', [
             'org' => $org,
             'project' => $project,
-            'task' => $task->fresh(),
+            'task' => $freshTask,
         ])->with('success', __('Task updated.'));
     }
 

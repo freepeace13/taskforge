@@ -1,9 +1,11 @@
 import type { PageProps } from '@inertiajs/core';
 import { Head, Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
+import { projectRouteParam } from '@/utils/routeBindings';
 
 type HubProject = {
     id: number;
+    slug?: string | null;
     name: string;
 };
 
@@ -49,7 +51,7 @@ export default function TasksHub({ organizations }: TasksHubProps) {
                                             <Link
                                                 href={route('projects.tasks.index', {
                                                     org: org.slug,
-                                                    project: project.id,
+                                                    project: projectRouteParam(project),
                                                 })}
                                                 className="text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
                                             >

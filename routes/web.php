@@ -42,19 +42,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
         Route::get('projects/create', [ProjectController::class, 'create'])->name('projects.create');
         Route::post('projects', [ProjectController::class, 'store'])->name('projects.store');
-        Route::get('projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
-        Route::get('projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
-        Route::patch('projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
-        Route::delete('projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+        Route::get('projects/{project:slug}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
+        Route::get('projects/{project:slug}', [ProjectController::class, 'show'])->name('projects.show');
+        Route::patch('projects/{project:slug}', [ProjectController::class, 'update'])->name('projects.update');
+        Route::delete('projects/{project:slug}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 
-        Route::prefix('projects/{project}')->group(function () {
+        Route::scopeBindings()->prefix('projects/{project:slug}')->group(function () {
             Route::get('tasks', [TaskController::class, 'index'])->name('projects.tasks.index');
             Route::get('tasks/create', [TaskController::class, 'create'])->name('projects.tasks.create');
             Route::post('tasks', [TaskController::class, 'store'])->name('projects.tasks.store');
-            Route::get('tasks/{task}/edit', [TaskController::class, 'edit'])->name('projects.tasks.edit');
-            Route::get('tasks/{task}', [TaskController::class, 'show'])->name('projects.tasks.show');
-            Route::patch('tasks/{task}', [TaskController::class, 'update'])->name('projects.tasks.update');
-            Route::delete('tasks/{task}', [TaskController::class, 'destroy'])->name('projects.tasks.destroy');
+            Route::get('tasks/{task:key}/edit', [TaskController::class, 'edit'])->name('projects.tasks.edit');
+            Route::get('tasks/{task:key}', [TaskController::class, 'show'])->name('projects.tasks.show');
+            Route::patch('tasks/{task:key}', [TaskController::class, 'update'])->name('projects.tasks.update');
+            Route::delete('tasks/{task:key}', [TaskController::class, 'destroy'])->name('projects.tasks.destroy');
         });
     });
 });

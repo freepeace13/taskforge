@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Role;
 use App\Models\Organization;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -15,12 +16,16 @@ class InertiaWorkspacesTest extends TestCase
     {
         $response = $this->get(route('workspaces'));
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('site.home'));
     }
 
     public function test_workspaces_index_renders_organization_list(): void
     {
         [$organization, $user] = $this->createOrganizationWithMember();
+        $organization->update(['name' => 'BBB']);
+
+        $otherOrg = Organization::factory()->create(['name' => 'AAA']);
+        $otherOrg->members()->attach($user->id, ['role' => Role::Member->value]);
 
         $response = $this->actingAs($user)->get(route('workspaces'));
 
@@ -28,37 +33,32 @@ class InertiaWorkspacesTest extends TestCase
         $response->assertInertia(
             fn (Assert $page): Assert => $page
                 ->component('Workspaces', false)
-                ->has('organizations', fn (Assert $orgs): Assert => $orgs
-                    ->has(0, fn (Assert $org): Assert => $org
-                        ->where('id', $organization->id)
-                        ->where('name', $organization->name)
-                        ->where('slug', $organization->slug)
-                        ->where('role', 'owner')
-                        ->etc()))
+                ->where('auth.user.id', $user->id)
+                ->where('auth.user.email', $user->email)
+                ->where('auth.tenant', null)
+                ->has('auth.organizations', 2)
+                ->has('organizations', 2)
+                ->where('organizations.0.name', 'AAA')
+                ->where('organizations.1.name', 'BBB')
         );
     }
 
-    public function test_workspaces_store_sets_tenant_and_redirects_to_projects(): void
+    public function test_workspaces_post_route_is_not_available(): void
     {
         [$organization, $user] = $this->createOrganizationWithMember();
 
-        $response = $this->actingAs($user)->post(route('workspaces.store'), [
-            'organization_id' => $organization->id,
-        ]);
+        $response = $this->actingAs($user)->post('/workspaces', ['organization_id' => $organization->id]);
 
-        $response->assertRedirect(route('projects.index', ['org' => $organization->slug]));
-        $this->assertSame($organization->id, session('tenant_id'));
+        $response->assertStatus(405);
     }
 
-    public function test_workspaces_store_rejects_organization_user_is_not_member_of(): void
+    public function test_workspaces_post_route_is_not_available_even_with_invalid_payload(): void
     {
         $otherOrg = Organization::factory()->create();
         [, $user] = $this->createOrganizationWithMember();
 
-        $response = $this->actingAs($user)->post(route('workspaces.store'), [
-            'organization_id' => $otherOrg->id,
-        ]);
+        $response = $this->actingAs($user)->post('/workspaces', ['organization_id' => $otherOrg->id]);
 
-        $response->assertSessionHasErrors('organization_id');
+        $response->assertStatus(405);
     }
 }

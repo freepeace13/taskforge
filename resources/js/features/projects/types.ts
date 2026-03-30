@@ -1,5 +1,7 @@
 export type ProjectAttributes = {
     id: number;
+    /** Present after migrations; fallback to `id` in routes when missing. */
+    slug?: string | null;
     name: string;
     description: string | null;
     archived_at: string | null;

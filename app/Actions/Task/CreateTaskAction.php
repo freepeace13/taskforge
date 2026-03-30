@@ -22,7 +22,12 @@ class CreateTaskAction implements CreatesTaskContract
             'description' => $data->description,
             'priority' => $data->priority,
             'due_date' => $data->dueDate,
+            'status' => $data->status ?? 'todo',
         ]);
+
+        if ($data->memberIds !== null) {
+            $task->members()->sync($data->memberIds);
+        }
 
         return $task;
     }

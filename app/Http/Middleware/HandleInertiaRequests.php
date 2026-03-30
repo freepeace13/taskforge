@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Data\TenantContext;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -36,29 +37,41 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user()
+                'user' => $user
                     ? [
-                        'id' => $request->user()->id,
-                        'name' => $request->user()->name,
-                        'email' => $request->user()->email,
+                        'id' => $user->id,
+                        'authId' => $user->auth_id,
+                        'name' => $user->name,
+                        'email' => $user->email,
                     ]
                     : null,
+                'tenant' => fn (): ?array => app()->bound(TenantContext::class)
+                    ? [
+                        'id' => app(TenantContext::class)->organization->id,
+                        'slug' => app(TenantContext::class)->organization->slug,
+                        'name' => app(TenantContext::class)->organization->name,
+                        'role' => app(TenantContext::class)->role->value,
+                    ]
+                    : null,
+                'organizations' => fn (): array => $user
+                    ? $user->organizations()
+                        ->orderBy('name')
+                        ->get()
+                        ->map(fn (Organization $org) => [
+                            'id' => $org->id,
+                            'name' => $org->name,
+                            'slug' => $org->slug,
+                            'role' => $org->pivot->role->value,
+                        ])
+                        ->values()
+                        ->all()
+                    : [],
             ],
-            'tenantOrganization' => function () use ($request) {
-                if (! $request->user() || ! app()->bound(TenantContext::class)) {
-                    return null;
-                }
-
-                $organization = tenant()->organization;
-
-                return [
-                    'slug' => $organization->slug,
-                    'name' => $organization->name,
-                ];
-            },
             'csrf_token' => csrf_token(),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
